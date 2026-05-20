@@ -14,6 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
+      citizens: {
+        Row: {
+          birth_date: string | null
+          birth_place: string | null
+          cin: string | null
+          created_at: string
+          created_by: string | null
+          education: string | null
+          first_names: string
+          household_id: string | null
+          id: string
+          is_head: boolean
+          last_name: string
+          marital_status: Database["public"]["Enums"]["marital_status"] | null
+          notes: string | null
+          phone: string | null
+          profession: string | null
+          sex: Database["public"]["Enums"]["sex"]
+          updated_at: string
+        }
+        Insert: {
+          birth_date?: string | null
+          birth_place?: string | null
+          cin?: string | null
+          created_at?: string
+          created_by?: string | null
+          education?: string | null
+          first_names: string
+          household_id?: string | null
+          id?: string
+          is_head?: boolean
+          last_name: string
+          marital_status?: Database["public"]["Enums"]["marital_status"] | null
+          notes?: string | null
+          phone?: string | null
+          profession?: string | null
+          sex: Database["public"]["Enums"]["sex"]
+          updated_at?: string
+        }
+        Update: {
+          birth_date?: string | null
+          birth_place?: string | null
+          cin?: string | null
+          created_at?: string
+          created_by?: string | null
+          education?: string | null
+          first_names?: string
+          household_id?: string | null
+          id?: string
+          is_head?: boolean
+          last_name?: string
+          marital_status?: Database["public"]["Enums"]["marital_status"] | null
+          notes?: string | null
+          phone?: string | null
+          profession?: string | null
+          sex?: Database["public"]["Enums"]["sex"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "citizens_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents_issued: {
+        Row: {
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
+          citizen_id: string | null
+          citizen_snapshot: Json
+          created_at: string
+          doc_number: string
+          doc_type: Database["public"]["Enums"]["document_type"]
+          id: string
+          issued_at: string
+          issued_by: string | null
+          issuer_name: string | null
+          payload: Json
+          status: Database["public"]["Enums"]["document_status"]
+          verify_code: string
+        }
+        Insert: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          citizen_id?: string | null
+          citizen_snapshot: Json
+          created_at?: string
+          doc_number: string
+          doc_type: Database["public"]["Enums"]["document_type"]
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          issuer_name?: string | null
+          payload?: Json
+          status?: Database["public"]["Enums"]["document_status"]
+          verify_code?: string
+        }
+        Update: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          citizen_id?: string | null
+          citizen_snapshot?: Json
+          created_at?: string
+          doc_number?: string
+          doc_type?: Database["public"]["Enums"]["document_type"]
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          issuer_name?: string | null
+          payload?: Json
+          status?: Database["public"]["Enums"]["document_status"]
+          verify_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_issued_citizen_id_fkey"
+            columns: ["citizen_id"]
+            isOneToOne: false
+            referencedRelation: "citizens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          address: string | null
+          created_at: string
+          created_by: string | null
+          fokontany: string | null
+          head_full_name: string
+          household_number: string
+          id: string
+          lat: number | null
+          lng: number | null
+          member_count: number | null
+          notes: string | null
+          socio_level: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          fokontany?: string | null
+          head_full_name: string
+          household_number: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          member_count?: number | null
+          notes?: string | null
+          socio_level?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          fokontany?: string | null
+          head_full_name?: string
+          household_number?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          member_count?: number | null
+          notes?: string | null
+          socio_level?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -77,9 +255,32 @@ export type Database = {
         }
         Returns: boolean
       }
+      verify_document: {
+        Args: { _code: string }
+        Returns: {
+          citizen_snapshot: Json
+          doc_number: string
+          doc_type: Database["public"]["Enums"]["document_type"]
+          issued_at: string
+          issuer_name: string
+          status: Database["public"]["Enums"]["document_status"]
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "agent" | "president" | "viewer"
+      document_status: "active" | "cancelled"
+      document_type:
+        | "residence"
+        | "vie"
+        | "bonne_conduite"
+        | "naissance"
+        | "celibat"
+        | "vente"
+        | "deces"
+        | "autre"
+      marital_status: "single" | "married" | "divorced" | "widowed"
+      sex: "M" | "F"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -208,6 +409,19 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "agent", "president", "viewer"],
+      document_status: ["active", "cancelled"],
+      document_type: [
+        "residence",
+        "vie",
+        "bonne_conduite",
+        "naissance",
+        "celibat",
+        "vente",
+        "deces",
+        "autre",
+      ],
+      marital_status: ["single", "married", "divorced", "widowed"],
+      sex: ["M", "F"],
     },
   },
 } as const
