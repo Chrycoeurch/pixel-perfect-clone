@@ -15,6 +15,8 @@ export function HouseholdDialog({ open, onOpenChange, onSaved }: { open: boolean
     address: "",
     fokontany: "",
     socio_level: "",
+    lat: "",
+    lng: "",
     notes: "",
   });
 
@@ -25,12 +27,19 @@ export function HouseholdDialog({ open, onOpenChange, onSaved }: { open: boolean
       toast.error("Numéro de foyer et chef de famille requis");
       return;
     }
+    const lat = form.lat.trim() ? Number(form.lat) : null;
+    const lng = form.lng.trim() ? Number(form.lng) : null;
+    if ((lat !== null && Number.isNaN(lat)) || (lng !== null && Number.isNaN(lng))) {
+      toast.error("Coordonnées invalides");
+      return;
+    }
     setLoading(true);
-    const { error } = await supabase.from("households").insert(form);
+    const { lat: _l, lng: _g, ...rest } = form;
+    const { error } = await supabase.from("households").insert({ ...rest, lat, lng });
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success("Foyer créé");
-    setForm({ household_number: "", head_full_name: "", address: "", fokontany: "", socio_level: "", notes: "" });
+    setForm({ household_number: "", head_full_name: "", address: "", fokontany: "", socio_level: "", lat: "", lng: "", notes: "" });
     onOpenChange(false);
     onSaved();
   };
@@ -45,6 +54,8 @@ export function HouseholdDialog({ open, onOpenChange, onSaved }: { open: boolean
           <div className="col-span-2"><Label>Adresse</Label><Input value={form.address} onChange={(e) => upd("address", e.target.value)} /></div>
           <div><Label>Fokontany</Label><Input value={form.fokontany} onChange={(e) => upd("fokontany", e.target.value)} /></div>
           <div><Label>Niveau socio-éco.</Label><Input value={form.socio_level} onChange={(e) => upd("socio_level", e.target.value)} placeholder="aisé / moyen / vulnérable" /></div>
+          <div><Label>Latitude</Label><Input value={form.lat} onChange={(e) => upd("lat", e.target.value)} placeholder="-18.8792" /></div>
+          <div><Label>Longitude</Label><Input value={form.lng} onChange={(e) => upd("lng", e.target.value)} placeholder="47.5079" /></div>
           <div className="col-span-2"><Label>Notes</Label><Textarea rows={2} value={form.notes} onChange={(e) => upd("notes", e.target.value)} /></div>
         </div>
         <DialogFooter>
