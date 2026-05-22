@@ -52,29 +52,43 @@ function SigPage() {
     });
   }, []);
 
-  // init map once
+  const mlRef = useRef<typeof import("maplibre-gl") | null>(null);
+  const [mlReady, setMlReady] = useState(false);
+
+  // init map once (client only — maplibre touches window)
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-            tileSize: 256,
-            attribution: "© OpenStreetMap contributors",
+    let cancelled = false;
+    (async () => {
+      const ml = (await import("maplibre-gl")).default;
+      await import("maplibre-gl/dist/maplibre-gl.css");
+      if (cancelled || !containerRef.current || mapRef.current) return;
+      mlRef.current = ml;
+      const map = new ml.Map({
+        container: containerRef.current,
+        style: {
+          version: 8,
+          sources: {
+            osm: {
+              type: "raster",
+              tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+              tileSize: 256,
+              attribution: "© OpenStreetMap contributors",
+            },
           },
+          layers: [{ id: "osm", type: "raster", source: "osm" }],
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }],
-      },
-      center: [47.5079, -18.8792], // Antananarivo
-      zoom: 11,
-    });
-    map.addControl(new maplibregl.NavigationControl(), "top-right");
-    mapRef.current = map;
-    return () => { map.remove(); mapRef.current = null; };
+        center: [47.5079, -18.8792],
+        zoom: 11,
+      });
+      map.addControl(new ml.NavigationControl(), "top-right");
+      mapRef.current = map;
+      setMlReady(true);
+    })();
+    return () => {
+      cancelled = true;
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
   }, []);
 
   // refresh markers
