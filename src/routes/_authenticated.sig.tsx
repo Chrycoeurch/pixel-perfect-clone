@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import maplibregl, { Map as MlMap, Marker, Popup } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
+import type { Map as MlMap, Marker } from "maplibre-gl";
 import { PageHeader } from "@/components/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +9,7 @@ import { Search, MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/sig")({
   component: SigPage,
+  ssr: false,
   head: () => ({ meta: [{ title: "SIG & Cartographie · FANISA" }] }),
 });
 
@@ -52,35 +52,50 @@ function SigPage() {
     });
   }, []);
 
-  // init map once
+  const mlRef = useRef<typeof import("maplibre-gl") | null>(null);
+  const [mlReady, setMlReady] = useState(false);
+
+  // init map once (client only — maplibre touches window)
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-            tileSize: 256,
-            attribution: "© OpenStreetMap contributors",
+    let cancelled = false;
+    (async () => {
+      const ml = (await import("maplibre-gl")).default;
+      await import("maplibre-gl/dist/maplibre-gl.css");
+      if (cancelled || !containerRef.current || mapRef.current) return;
+      mlRef.current = ml;
+      const map = new ml.Map({
+        container: containerRef.current,
+        style: {
+          version: 8,
+          sources: {
+            osm: {
+              type: "raster",
+              tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+              tileSize: 256,
+              attribution: "© OpenStreetMap contributors",
+            },
           },
+          layers: [{ id: "osm", type: "raster", source: "osm" }],
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }],
-      },
-      center: [47.5079, -18.8792], // Antananarivo
-      zoom: 11,
-    });
-    map.addControl(new maplibregl.NavigationControl(), "top-right");
-    mapRef.current = map;
-    return () => { map.remove(); mapRef.current = null; };
+        center: [47.5079, -18.8792],
+        zoom: 11,
+      });
+      map.addControl(new ml.NavigationControl(), "top-right");
+      mapRef.current = map;
+      setMlReady(true);
+    })();
+    return () => {
+      cancelled = true;
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
   }, []);
 
   // refresh markers
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    const ml = mlRef.current;
+    if (!map || !ml) return;
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
@@ -95,11 +110,11 @@ function SigPage() {
       );
     });
 
-    const bounds = new maplibregl.LngLatBounds();
+    const bounds = new ml.LngLatBounds();
     filtered.forEach((h) => {
       const el = document.createElement("div");
       el.style.cssText = `width:18px;height:18px;border-radius:50%;background:${colorFor(h.socio_level)};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;`;
-      const popup = new Popup({ offset: 14, closeButton: false }).setHTML(
+      const popup = new ml.Popup({ offset: 14, closeButton: false }).setHTML(
         `<div style="font-family:inherit;font-size:13px;line-height:1.4">
            <div style="font-weight:600">${h.head_full_name}</div>
            <div style="color:#6b7280;font-family:monospace;font-size:11px">${h.household_number}</div>
@@ -107,7 +122,7 @@ function SigPage() {
            <div style="margin-top:2px">👥 ${h.member_count} membre(s)</div>
          </div>`
       );
-      const marker = new Marker({ element: el })
+      const marker = new ml.Marker({ element: el })
         .setLngLat([h.lng!, h.lat!])
         .setPopup(popup)
         .addTo(map);
@@ -119,7 +134,7 @@ function SigPage() {
     if (filtered.length > 0) {
       map.fitBounds(bounds, { padding: 60, maxZoom: 15, duration: 600 });
     }
-  }, [households, q]);
+  }, [households, q, mlReady]);
 
   const geoCount = households.filter((h) => h.lat != null && h.lng != null).length;
 
