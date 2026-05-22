@@ -82,6 +82,102 @@ export type Database = {
           },
         ]
       }
+      contribution_campaigns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          deadline: string | null
+          description: string | null
+          id: string
+          status: Database["public"]["Enums"]["campaign_status"]
+          target_amount_per_household: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["campaign_status"]
+          target_amount_per_household?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["campaign_status"]
+          target_amount_per_household?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contributions: {
+        Row: {
+          amount: number
+          campaign_id: string
+          created_at: string
+          household_id: string | null
+          household_label: string | null
+          id: string
+          method: string | null
+          notes: string | null
+          paid_at: string
+          receipt_number: string | null
+          recorded_by: string | null
+        }
+        Insert: {
+          amount: number
+          campaign_id: string
+          created_at?: string
+          household_id?: string | null
+          household_label?: string | null
+          id?: string
+          method?: string | null
+          notes?: string | null
+          paid_at?: string
+          receipt_number?: string | null
+          recorded_by?: string | null
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string
+          created_at?: string
+          household_id?: string | null
+          household_label?: string | null
+          id?: string
+          method?: string | null
+          notes?: string | null
+          paid_at?: string
+          receipt_number?: string | null
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contributions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "contribution_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contributions_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents_issued: {
         Row: {
           cancel_reason: string | null
@@ -144,6 +240,51 @@ export type Database = {
           },
         ]
       }
+      expenses: {
+        Row: {
+          amount: number
+          category: Database["public"]["Enums"]["expense_category"]
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          id: string
+          invoice_ref: string | null
+          spent_at: string
+          title: string
+          updated_at: string
+          vendor: string | null
+        }
+        Insert: {
+          amount: number
+          category?: Database["public"]["Enums"]["expense_category"]
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          invoice_ref?: string | null
+          spent_at?: string
+          title: string
+          updated_at?: string
+          vendor?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: Database["public"]["Enums"]["expense_category"]
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          invoice_ref?: string | null
+          spent_at?: string
+          title?: string
+          updated_at?: string
+          vendor?: string | null
+        }
+        Relationships: []
+      }
       households: {
         Row: {
           address: string | null
@@ -188,6 +329,90 @@ export type Database = {
           member_count?: number | null
           notes?: string | null
           socio_level?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      meeting_attendance: {
+        Row: {
+          checked_in_at: string
+          citizen_id: string | null
+          citizen_label: string
+          id: string
+          meeting_id: string
+          recorded_by: string | null
+        }
+        Insert: {
+          checked_in_at?: string
+          citizen_id?: string | null
+          citizen_label: string
+          id?: string
+          meeting_id: string
+          recorded_by?: string | null
+        }
+        Update: {
+          checked_in_at?: string
+          citizen_id?: string | null
+          citizen_label?: string
+          id?: string
+          meeting_id?: string
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_attendance_citizen_id_fkey"
+            columns: ["citizen_id"]
+            isOneToOne: false
+            referencedRelation: "citizens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_attendance_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meetings: {
+        Row: {
+          agenda: string | null
+          attendance_code: string
+          created_at: string
+          created_by: string | null
+          ends_at: string | null
+          id: string
+          location: string | null
+          starts_at: string
+          status: Database["public"]["Enums"]["meeting_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agenda?: string | null
+          attendance_code?: string
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          location?: string | null
+          starts_at: string
+          status?: Database["public"]["Enums"]["meeting_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agenda?: string | null
+          attendance_code?: string
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          location?: string | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["meeting_status"]
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -269,6 +494,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "agent" | "president" | "viewer"
+      campaign_status: "active" | "closed" | "draft"
       document_status: "active" | "cancelled"
       document_type:
         | "residence"
@@ -279,7 +505,16 @@ export type Database = {
         | "vente"
         | "deces"
         | "autre"
+      expense_category:
+        | "infrastructure"
+        | "sanitaire"
+        | "education"
+        | "securite"
+        | "evenement"
+        | "administration"
+        | "autre"
       marital_status: "single" | "married" | "divorced" | "widowed"
+      meeting_status: "scheduled" | "ongoing" | "closed" | "cancelled"
       sex: "M" | "F"
     }
     CompositeTypes: {
@@ -409,6 +644,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "agent", "president", "viewer"],
+      campaign_status: ["active", "closed", "draft"],
       document_status: ["active", "cancelled"],
       document_type: [
         "residence",
@@ -420,7 +656,17 @@ export const Constants = {
         "deces",
         "autre",
       ],
+      expense_category: [
+        "infrastructure",
+        "sanitaire",
+        "education",
+        "securite",
+        "evenement",
+        "administration",
+        "autre",
+      ],
       marital_status: ["single", "married", "divorced", "widowed"],
+      meeting_status: ["scheduled", "ongoing", "closed", "cancelled"],
       sex: ["M", "F"],
     },
   },
