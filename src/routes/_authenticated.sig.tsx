@@ -94,7 +94,8 @@ function SigPage() {
   // refresh markers
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    const ml = mlRef.current;
+    if (!map || !ml) return;
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
@@ -109,11 +110,11 @@ function SigPage() {
       );
     });
 
-    const bounds = new maplibregl.LngLatBounds();
+    const bounds = new ml.LngLatBounds();
     filtered.forEach((h) => {
       const el = document.createElement("div");
       el.style.cssText = `width:18px;height:18px;border-radius:50%;background:${colorFor(h.socio_level)};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;`;
-      const popup = new Popup({ offset: 14, closeButton: false }).setHTML(
+      const popup = new ml.Popup({ offset: 14, closeButton: false }).setHTML(
         `<div style="font-family:inherit;font-size:13px;line-height:1.4">
            <div style="font-weight:600">${h.head_full_name}</div>
            <div style="color:#6b7280;font-family:monospace;font-size:11px">${h.household_number}</div>
@@ -121,7 +122,7 @@ function SigPage() {
            <div style="margin-top:2px">👥 ${h.member_count} membre(s)</div>
          </div>`
       );
-      const marker = new Marker({ element: el })
+      const marker = new ml.Marker({ element: el })
         .setLngLat([h.lng!, h.lat!])
         .setPopup(popup)
         .addTo(map);
@@ -133,7 +134,7 @@ function SigPage() {
     if (filtered.length > 0) {
       map.fitBounds(bounds, { padding: 60, maxZoom: 15, duration: 600 });
     }
-  }, [households, q]);
+  }, [households, q, mlReady]);
 
   const geoCount = households.filter((h) => h.lat != null && h.lng != null).length;
 
