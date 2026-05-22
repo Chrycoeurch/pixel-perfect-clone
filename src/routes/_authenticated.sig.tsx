@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import maplibregl, { Map as MlMap, Marker, Popup } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
+import type { Map as MlMap, Marker } from "maplibre-gl";
 import { PageHeader } from "@/components/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +9,7 @@ import { Search, MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/sig")({
   component: SigPage,
+  ssr: false,
   head: () => ({ meta: [{ title: "SIG & Cartographie · FANISA" }] }),
 });
 
