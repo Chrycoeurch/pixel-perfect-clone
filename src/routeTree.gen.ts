@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyCodeRouteImport } from './routes/verify.$code'
+import { Route as MeetingsCodeRouteImport } from './routes/meetings.$code'
 import { Route as AuthenticatedSigRouteImport } from './routes/_authenticated.sig'
 import { Route as AuthenticatedPatrimoineRouteImport } from './routes/_authenticated.patrimoine'
 import { Route as AuthenticatedFinancesRouteImport } from './routes/_authenticated.finances'
@@ -36,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const VerifyCodeRoute = VerifyCodeRouteImport.update({
   id: '/verify/$code',
   path: '/verify/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetingsCodeRoute = MeetingsCodeRouteImport.update({
+  id: '/meetings/$code',
+  path: '/meetings/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedSigRoute = AuthenticatedSigRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/finances': typeof AuthenticatedFinancesRoute
   '/patrimoine': typeof AuthenticatedPatrimoineRoute
   '/sig': typeof AuthenticatedSigRoute
+  '/meetings/$code': typeof MeetingsCodeRoute
   '/verify/$code': typeof VerifyCodeRoute
 }
 export interface FileRoutesByTo {
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/finances': typeof AuthenticatedFinancesRoute
   '/patrimoine': typeof AuthenticatedPatrimoineRoute
   '/sig': typeof AuthenticatedSigRoute
+  '/meetings/$code': typeof MeetingsCodeRoute
   '/verify/$code': typeof VerifyCodeRoute
 }
 export interface FileRoutesById {
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/_authenticated/finances': typeof AuthenticatedFinancesRoute
   '/_authenticated/patrimoine': typeof AuthenticatedPatrimoineRoute
   '/_authenticated/sig': typeof AuthenticatedSigRoute
+  '/meetings/$code': typeof MeetingsCodeRoute
   '/verify/$code': typeof VerifyCodeRoute
 }
 export interface FileRouteTypes {
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/finances'
     | '/patrimoine'
     | '/sig'
+    | '/meetings/$code'
     | '/verify/$code'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/finances'
     | '/patrimoine'
     | '/sig'
+    | '/meetings/$code'
     | '/verify/$code'
   id:
     | '__root__'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/_authenticated/finances'
     | '/_authenticated/patrimoine'
     | '/_authenticated/sig'
+    | '/meetings/$code'
     | '/verify/$code'
   fileRoutesById: FileRoutesById
 }
@@ -135,6 +147,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  MeetingsCodeRoute: typeof MeetingsCodeRoute
   VerifyCodeRoute: typeof VerifyCodeRoute
 }
 
@@ -166,6 +179,13 @@ declare module '@tanstack/react-router' {
       path: '/verify/$code'
       fullPath: '/verify/$code'
       preLoaderRoute: typeof VerifyCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meetings/$code': {
+      id: '/meetings/$code'
+      path: '/meetings/$code'
+      fullPath: '/meetings/$code'
+      preLoaderRoute: typeof MeetingsCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/sig': {
@@ -230,6 +250,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  MeetingsCodeRoute: MeetingsCodeRoute,
   VerifyCodeRoute: VerifyCodeRoute,
 }
 export const routeTree = rootRouteImport
