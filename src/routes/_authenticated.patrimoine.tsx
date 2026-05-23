@@ -43,9 +43,10 @@ function PatrimoinePage() {
 
   const assetName = (id: string) => assets.find((a) => a.id === id)?.name ?? "—";
 
-  const setStatus = async (id: string, status: string, returned = false) => {
-    const patch: Record<string, unknown> = { status };
-    if (returned) patch.returned_date = new Date().toISOString().slice(0, 10);
+  const setStatus = async (id: string, status: "active" | "returned" | "overdue" | "cancelled" | "reserved", returned = false) => {
+    const patch = returned
+      ? { status, returned_date: new Date().toISOString().slice(0, 10) }
+      : { status };
     const { error } = await supabase.from("asset_loans").update(patch).eq("id", id);
     if (error) toast.error(error.message); else { toast.success("Prêt mis à jour"); reload(); }
   };
