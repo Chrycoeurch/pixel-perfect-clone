@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      asset_loans: {
+        Row: {
+          asset_id: string
+          borrower_label: string
+          created_at: string
+          created_by: string | null
+          deposit_amount: number
+          due_date: string | null
+          fee_amount: number
+          household_id: string | null
+          id: string
+          loan_date: string
+          notes: string | null
+          paid_amount: number
+          quantity: number
+          returned_date: string | null
+          status: Database["public"]["Enums"]["loan_status"]
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          borrower_label: string
+          created_at?: string
+          created_by?: string | null
+          deposit_amount?: number
+          due_date?: string | null
+          fee_amount?: number
+          household_id?: string | null
+          id?: string
+          loan_date?: string
+          notes?: string | null
+          paid_amount?: number
+          quantity?: number
+          returned_date?: string | null
+          status?: Database["public"]["Enums"]["loan_status"]
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          borrower_label?: string
+          created_at?: string
+          created_by?: string | null
+          deposit_amount?: number
+          due_date?: string | null
+          fee_amount?: number
+          household_id?: string | null
+          id?: string
+          loan_date?: string
+          notes?: string | null
+          paid_amount?: number
+          quantity?: number
+          returned_date?: string | null
+          status?: Database["public"]["Enums"]["loan_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      assets: {
+        Row: {
+          category: Database["public"]["Enums"]["asset_category"]
+          condition: Database["public"]["Enums"]["asset_condition"]
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          location: string | null
+          name: string
+          notes: string | null
+          total_quantity: number
+          unit_value: number
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["asset_category"]
+          condition?: Database["public"]["Enums"]["asset_condition"]
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          location?: string | null
+          name: string
+          notes?: string | null
+          total_quantity?: number
+          unit_value?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["asset_category"]
+          condition?: Database["public"]["Enums"]["asset_condition"]
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          location?: string | null
+          name?: string
+          notes?: string | null
+          total_quantity?: number
+          unit_value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       citizens: {
         Row: {
           birth_date: string | null
@@ -494,6 +596,14 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "agent" | "president" | "viewer"
+      asset_category:
+        | "mobilier"
+        | "tente"
+        | "sono"
+        | "outillage"
+        | "vaisselle"
+        | "autre"
+      asset_condition: "neuf" | "bon" | "use" | "hors_service"
       campaign_status: "active" | "closed" | "draft"
       document_status: "active" | "cancelled"
       document_type:
@@ -513,6 +623,7 @@ export type Database = {
         | "evenement"
         | "administration"
         | "autre"
+      loan_status: "reserved" | "active" | "returned" | "overdue" | "cancelled"
       marital_status: "single" | "married" | "divorced" | "widowed"
       meeting_status: "scheduled" | "ongoing" | "closed" | "cancelled"
       sex: "M" | "F"
@@ -644,6 +755,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "agent", "president", "viewer"],
+      asset_category: [
+        "mobilier",
+        "tente",
+        "sono",
+        "outillage",
+        "vaisselle",
+        "autre",
+      ],
+      asset_condition: ["neuf", "bon", "use", "hors_service"],
       campaign_status: ["active", "closed", "draft"],
       document_status: ["active", "cancelled"],
       document_type: [
@@ -665,6 +785,7 @@ export const Constants = {
         "administration",
         "autre",
       ],
+      loan_status: ["reserved", "active", "returned", "overdue", "cancelled"],
       marital_status: ["single", "married", "divorced", "widowed"],
       meeting_status: ["scheduled", "ongoing", "closed", "cancelled"],
       sex: ["M", "F"],
