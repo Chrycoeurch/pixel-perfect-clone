@@ -137,6 +137,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
       toast.success("Foyer créé — ajoutez maintenant les membres");
       onSaved();
       onCreated?.(data!.id);
+    } else {
       const { error } = await supabase.from("households").update(payload).eq("id", householdId!);
       setLoading(false);
       if (error) return toast.error(error.message);
