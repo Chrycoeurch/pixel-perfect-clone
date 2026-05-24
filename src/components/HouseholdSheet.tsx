@@ -17,6 +17,7 @@ interface HouseholdSheetProps {
   onOpenChange: (v: boolean) => void;
   householdId: string | null; // null = création
   onSaved: () => void;
+  onCreated?: (id: string) => void;
 }
 
 const RELATIONSHIPS = [
@@ -60,7 +61,7 @@ const emptyMember = (): MemberDraft => ({
   last_name: "", first_names: "", sex: "M", birth_date: "", cin: "", phone: "", profession: "", relationship: "fils",
 });
 
-export function HouseholdSheet({ open, onOpenChange, householdId, onSaved }: HouseholdSheetProps) {
+export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCreated }: HouseholdSheetProps) {
   const isNew = !householdId;
   const [loading, setLoading] = useState(false);
   const [household, setHousehold] = useState({
