@@ -66,7 +66,7 @@ function AdminPage() {
         description="Foyers, citoyens et délivrance d'actes avec vérification QR."
         actions={
           <>
-            {tab === "foyers" && <Button onClick={() => setDlgH(true)}><Plus className="w-4 h-4 mr-1" />Foyer</Button>}
+            {tab === "foyers" && <Button onClick={() => openHousehold(null)}><Plus className="w-4 h-4 mr-1" />Foyer</Button>}
             {tab === "citoyens" && <Button onClick={() => setDlgC(true)}><Plus className="w-4 h-4 mr-1" />Citoyen</Button>}
             {tab === "actes" && <Button onClick={() => setDlgA(true)}><FileCheck2 className="w-4 h-4 mr-1" />Délivrer un acte</Button>}
           </>
@@ -98,7 +98,7 @@ function AdminPage() {
                 <TableHeader><TableRow><TableHead>N°</TableHead><TableHead>Chef</TableHead><TableHead>Fokontany</TableHead><TableHead>Adresse</TableHead><TableHead className="text-right">Membres</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {households.filter((h) => matches(h.household_number) || matches(h.head_full_name)).map((h) => (
-                    <TableRow key={h.id}>
+                    <TableRow key={h.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openHousehold(h.id)}>
                       <TableCell className="font-mono">{h.household_number}</TableCell>
                       <TableCell className="font-medium">{h.head_full_name}</TableCell>
                       <TableCell>{h.fokontany ?? "—"}</TableCell>
@@ -164,7 +164,7 @@ function AdminPage() {
         </Tabs>
       </div>
 
-      <HouseholdDialog open={dlgH} onOpenChange={setDlgH} onSaved={reload} />
+      <HouseholdSheet open={dlgH} onOpenChange={setDlgH} householdId={activeHouseholdId} onSaved={reload} />
       <CitizenDialog open={dlgC} onOpenChange={setDlgC} onSaved={reload} />
       <ActeDialog open={dlgA} onOpenChange={setDlgA} onSaved={reload} />
     </div>
