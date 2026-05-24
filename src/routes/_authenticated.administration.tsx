@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Search, FileCheck2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { HouseholdDialog } from "@/components/HouseholdDialog";
+import { HouseholdSheet } from "@/components/HouseholdSheet";
 import { CitizenDialog } from "@/components/CitizenDialog";
 import { ActeDialog } from "@/components/ActeDialog";
 import { DOC_TYPES, SEX_LABEL } from "@/lib/acte-types";
@@ -30,8 +30,11 @@ function AdminPage() {
   const [docs, setDocs] = useState<DocRow[]>([]);
   const [q, setQ] = useState("");
   const [dlgH, setDlgH] = useState(false);
+  const [activeHouseholdId, setActiveHouseholdId] = useState<string | null>(null);
   const [dlgC, setDlgC] = useState(false);
   const [dlgA, setDlgA] = useState(false);
+
+  const openHousehold = (id: string | null) => { setActiveHouseholdId(id); setDlgH(true); };
 
   const reload = async () => {
     const [{ data: h }, { data: c }, { data: d }] = await Promise.all([
