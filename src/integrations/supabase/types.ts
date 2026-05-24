@@ -133,6 +133,7 @@ export type Database = {
           notes: string | null
           phone: string | null
           profession: string | null
+          relationship: string | null
           sex: Database["public"]["Enums"]["sex"]
           updated_at: string
         }
@@ -152,6 +153,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           profession?: string | null
+          relationship?: string | null
           sex: Database["public"]["Enums"]["sex"]
           updated_at?: string
         }
@@ -171,6 +173,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           profession?: string | null
+          relationship?: string | null
           sex?: Database["public"]["Enums"]["sex"]
           updated_at?: string
         }

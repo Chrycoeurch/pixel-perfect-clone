@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Search, FileCheck2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { HouseholdDialog } from "@/components/HouseholdDialog";
+import { HouseholdSheet } from "@/components/HouseholdSheet";
 import { CitizenDialog } from "@/components/CitizenDialog";
 import { ActeDialog } from "@/components/ActeDialog";
 import { DOC_TYPES, SEX_LABEL } from "@/lib/acte-types";
@@ -30,8 +30,11 @@ function AdminPage() {
   const [docs, setDocs] = useState<DocRow[]>([]);
   const [q, setQ] = useState("");
   const [dlgH, setDlgH] = useState(false);
+  const [activeHouseholdId, setActiveHouseholdId] = useState<string | null>(null);
   const [dlgC, setDlgC] = useState(false);
   const [dlgA, setDlgA] = useState(false);
+
+  const openHousehold = (id: string | null) => { setActiveHouseholdId(id); setDlgH(true); };
 
   const reload = async () => {
     const [{ data: h }, { data: c }, { data: d }] = await Promise.all([
@@ -63,7 +66,7 @@ function AdminPage() {
         description="Foyers, citoyens et délivrance d'actes avec vérification QR."
         actions={
           <>
-            {tab === "foyers" && <Button onClick={() => setDlgH(true)}><Plus className="w-4 h-4 mr-1" />Foyer</Button>}
+            {tab === "foyers" && <Button onClick={() => openHousehold(null)}><Plus className="w-4 h-4 mr-1" />Foyer</Button>}
             {tab === "citoyens" && <Button onClick={() => setDlgC(true)}><Plus className="w-4 h-4 mr-1" />Citoyen</Button>}
             {tab === "actes" && <Button onClick={() => setDlgA(true)}><FileCheck2 className="w-4 h-4 mr-1" />Délivrer un acte</Button>}
           </>
@@ -95,7 +98,7 @@ function AdminPage() {
                 <TableHeader><TableRow><TableHead>N°</TableHead><TableHead>Chef</TableHead><TableHead>Fokontany</TableHead><TableHead>Adresse</TableHead><TableHead className="text-right">Membres</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {households.filter((h) => matches(h.household_number) || matches(h.head_full_name)).map((h) => (
-                    <TableRow key={h.id}>
+                    <TableRow key={h.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openHousehold(h.id)}>
                       <TableCell className="font-mono">{h.household_number}</TableCell>
                       <TableCell className="font-medium">{h.head_full_name}</TableCell>
                       <TableCell>{h.fokontany ?? "—"}</TableCell>
@@ -161,7 +164,7 @@ function AdminPage() {
         </Tabs>
       </div>
 
-      <HouseholdDialog open={dlgH} onOpenChange={setDlgH} onSaved={reload} />
+      <HouseholdSheet open={dlgH} onOpenChange={setDlgH} householdId={activeHouseholdId} onSaved={reload} onCreated={(id) => setActiveHouseholdId(id)} />
       <CitizenDialog open={dlgC} onOpenChange={setDlgC} onSaved={reload} />
       <ActeDialog open={dlgA} onOpenChange={setDlgA} onSaved={reload} />
     </div>

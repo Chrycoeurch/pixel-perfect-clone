@@ -1,0 +1,1 @@
+ALTER TABLE public.citizens ADD COLUMN IF NOT EXISTS relationship text;
