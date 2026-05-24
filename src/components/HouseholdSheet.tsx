@@ -134,15 +134,9 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
       const { data, error } = await supabase.from("households").insert(payload).select("id").single();
       setLoading(false);
       if (error) return toast.error(error.message);
-      toast.success("Foyer créé");
+      toast.success("Foyer créé — ajoutez maintenant les membres");
       onSaved();
-      onOpenChange(false);
-      // Re-open for newly created household to add members
-      setTimeout(() => {
-        const evt = new CustomEvent("open-household", { detail: { id: data!.id } });
-        window.dispatchEvent(evt);
-      }, 100);
-    } else {
+      onCreated?.(data!.id);
       const { error } = await supabase.from("households").update(payload).eq("id", householdId!);
       setLoading(false);
       if (error) return toast.error(error.message);
