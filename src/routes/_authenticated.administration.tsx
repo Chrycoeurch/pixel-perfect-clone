@@ -164,7 +164,7 @@ function AdminPage() {
         </Tabs>
       </div>
 
-      <HouseholdSheet open={dlgH} onOpenChange={setDlgH} householdId={activeHouseholdId} onSaved={reload} />
+      <HouseholdSheet open={dlgH} onOpenChange={setDlgH} householdId={activeHouseholdId} onSaved={reload} onCreated={(id) => setActiveHouseholdId(id)} />
       <CitizenDialog open={dlgC} onOpenChange={setDlgC} onSaved={reload} />
       <ActeDialog open={dlgA} onOpenChange={setDlgA} onSaved={reload} />
     </div>
