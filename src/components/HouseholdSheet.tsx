@@ -201,7 +201,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved }: Hou
       cin: memberDraft.cin || null, phone: memberDraft.phone || null,
       profession: memberDraft.profession || null,
     };
-    const { error } = await supabase.from("citizens").update(payload).eq("id", editingMember);
+    const { error } = await supabase.from("citizens").update(payload as never).eq("id", editingMember);
     if (error) return toast.error(error.message);
     toast.success("Membre mis à jour");
     setEditingMember(null);
