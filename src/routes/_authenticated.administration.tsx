@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Search, FileCheck2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HouseholdSheet } from "@/components/HouseholdSheet";
+import { CitizenSheet } from "@/components/CitizenSheet";
 import { CitizenDialog } from "@/components/CitizenDialog";
 import { ActeDialog } from "@/components/ActeDialog";
 import { DOC_TYPES, SEX_LABEL } from "@/lib/acte-types";
@@ -32,7 +33,11 @@ function AdminPage() {
   const [dlgH, setDlgH] = useState(false);
   const [activeHouseholdId, setActiveHouseholdId] = useState<string | null>(null);
   const [dlgC, setDlgC] = useState(false);
+  const [activeCitizenId, setActiveCitizenId] = useState<string | null>(null);
+  const [sheetC, setSheetC] = useState(false);
   const [dlgA, setDlgA] = useState(false);
+
+  const openCitizen = (id: string) => { setActiveCitizenId(id); setSheetC(true); };
 
   const openHousehold = (id: string | null) => { setActiveHouseholdId(id); setDlgH(true); };
 
@@ -118,7 +123,7 @@ function AdminPage() {
                 <TableHeader><TableRow><TableHead>Nom & prénoms</TableHead><TableHead>Sexe</TableHead><TableHead>CIN</TableHead><TableHead>Profession</TableHead><TableHead>Téléphone</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {citizens.filter((c) => matches(c.last_name) || matches(c.first_names) || matches(c.cin)).map((c) => (
-                    <TableRow key={c.id}>
+                    <TableRow key={c.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openCitizen(c.id)}>
                       <TableCell className="font-medium">{c.last_name} {c.first_names}</TableCell>
                       <TableCell>{SEX_LABEL[c.sex]}</TableCell>
                       <TableCell className="font-mono text-xs">{c.cin ?? "—"}</TableCell>
@@ -165,6 +170,7 @@ function AdminPage() {
       </div>
 
       <HouseholdSheet open={dlgH} onOpenChange={setDlgH} householdId={activeHouseholdId} onSaved={reload} onCreated={(id) => setActiveHouseholdId(id)} />
+      <CitizenSheet open={sheetC} onOpenChange={setSheetC} citizenId={activeCitizenId} />
       <CitizenDialog open={dlgC} onOpenChange={setDlgC} onSaved={reload} />
       <ActeDialog open={dlgA} onOpenChange={setDlgA} onSaved={reload} />
     </div>
