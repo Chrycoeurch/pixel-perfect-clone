@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Search, FileCheck2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HouseholdSheet } from "@/components/HouseholdSheet";
+import { CitizenSheet } from "@/components/CitizenSheet";
 import { CitizenDialog } from "@/components/CitizenDialog";
 import { ActeDialog } from "@/components/ActeDialog";
 import { DOC_TYPES, SEX_LABEL } from "@/lib/acte-types";
