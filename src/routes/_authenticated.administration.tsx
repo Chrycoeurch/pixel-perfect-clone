@@ -170,6 +170,7 @@ function AdminPage() {
       </div>
 
       <HouseholdSheet open={dlgH} onOpenChange={setDlgH} householdId={activeHouseholdId} onSaved={reload} onCreated={(id) => setActiveHouseholdId(id)} />
+      <CitizenSheet open={sheetC} onOpenChange={setSheetC} citizenId={activeCitizenId} />
       <CitizenDialog open={dlgC} onOpenChange={setDlgC} onSaved={reload} />
       <ActeDialog open={dlgA} onOpenChange={setDlgA} onSaved={reload} />
     </div>
