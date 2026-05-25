@@ -32,7 +32,6 @@ function AdminPage() {
   const [q, setQ] = useState("");
   const [dlgH, setDlgH] = useState(false);
   const [activeHouseholdId, setActiveHouseholdId] = useState<string | null>(null);
-  const [activeHouseholdId, setActiveHouseholdId] = useState<string | null>(null);
   const [dlgC, setDlgC] = useState(false);
   const [activeCitizenId, setActiveCitizenId] = useState<string | null>(null);
   const [sheetC, setSheetC] = useState(false);
