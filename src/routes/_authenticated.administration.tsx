@@ -123,7 +123,7 @@ function AdminPage() {
                 <TableHeader><TableRow><TableHead>Nom & prénoms</TableHead><TableHead>Sexe</TableHead><TableHead>CIN</TableHead><TableHead>Profession</TableHead><TableHead>Téléphone</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {citizens.filter((c) => matches(c.last_name) || matches(c.first_names) || matches(c.cin)).map((c) => (
-                    <TableRow key={c.id}>
+                    <TableRow key={c.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openCitizen(c.id)}>
                       <TableCell className="font-medium">{c.last_name} {c.first_names}</TableCell>
                       <TableCell>{SEX_LABEL[c.sex]}</TableCell>
                       <TableCell className="font-mono text-xs">{c.cin ?? "—"}</TableCell>
