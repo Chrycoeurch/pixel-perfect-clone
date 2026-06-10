@@ -77,10 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Plateforme de gestion administrative, financière et patrimoniale du Fokontany (Toamasina)." },
       { name: "author", content: "FANISA" },
       { property: "og:title", content: "FANISA Web Pro" },
-      { property: "og:description", content: "Plateforme de gestion du Fokontany." },
+      { property: "og:description", content: "Plateforme de gestion administrative, financière et patrimoniale du Fokontany (Toamasina)." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "FANISA Web Pro" },
+      { name: "twitter:description", content: "Plateforme de gestion administrative, financière et patrimoniale du Fokontany (Toamasina)." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bbe35934-772b-442c-8c7a-81ee9b1ef076/id-preview-68ac9186--b05ff269-b675-434b-8afa-b90cda1ce7bb.lovable.app-1781063477539.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bbe35934-772b-442c-8c7a-81ee9b1ef076/id-preview-68ac9186--b05ff269-b675-434b-8afa-b90cda1ce7bb.lovable.app-1781063477539.png" },
     ],
     links: [
       {
