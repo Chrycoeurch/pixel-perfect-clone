@@ -62,7 +62,7 @@ const emptyHousehold = () => ({
 
 const genHouseholdNumber = () => `FY-${Math.floor(100000 + Math.random() * 900000)}`;
 
-function SectionCard({ icon: Icon, title, color, children }: { icon: React.ComponentType<{ className?: string }>; title: string; color: string; children: React.ReactNode }) {
+function SectionCard({ icon: Icon, title, color, children }: { icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; title: string; color: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border" style={{ background: `color-mix(in oklab, ${color} 12%, transparent)` }}>
