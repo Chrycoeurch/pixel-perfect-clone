@@ -393,46 +393,88 @@ export type Database = {
       households: {
         Row: {
           address: string | null
+          agent_notes: string | null
+          carreau_name: string | null
+          carreau_number: string | null
+          commune: string | null
           created_at: string
           created_by: string | null
+          district: string | null
+          document_photos: string[] | null
           fokontany: string | null
+          head_facebook: string | null
           head_full_name: string
+          head_phone: string | null
+          house_area_m2: number | null
           household_number: string
+          housing_photos: string[] | null
+          housing_type: string | null
           id: string
+          land_area_m2: number | null
+          land_legal_status: string | null
           lat: number | null
           lng: number | null
           member_count: number | null
           notes: string | null
+          occupancy_status: string | null
           socio_level: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
+          agent_notes?: string | null
+          carreau_name?: string | null
+          carreau_number?: string | null
+          commune?: string | null
           created_at?: string
           created_by?: string | null
+          district?: string | null
+          document_photos?: string[] | null
           fokontany?: string | null
+          head_facebook?: string | null
           head_full_name: string
+          head_phone?: string | null
+          house_area_m2?: number | null
           household_number: string
+          housing_photos?: string[] | null
+          housing_type?: string | null
           id?: string
+          land_area_m2?: number | null
+          land_legal_status?: string | null
           lat?: number | null
           lng?: number | null
           member_count?: number | null
           notes?: string | null
+          occupancy_status?: string | null
           socio_level?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
+          agent_notes?: string | null
+          carreau_name?: string | null
+          carreau_number?: string | null
+          commune?: string | null
           created_at?: string
           created_by?: string | null
+          district?: string | null
+          document_photos?: string[] | null
           fokontany?: string | null
+          head_facebook?: string | null
           head_full_name?: string
+          head_phone?: string | null
+          house_area_m2?: number | null
           household_number?: string
+          housing_photos?: string[] | null
+          housing_type?: string | null
           id?: string
+          land_area_m2?: number | null
+          land_legal_status?: string | null
           lat?: number | null
           lng?: number | null
           member_count?: number | null
           notes?: string | null
+          occupancy_status?: string | null
           socio_level?: string | null
           updated_at?: string
         }
