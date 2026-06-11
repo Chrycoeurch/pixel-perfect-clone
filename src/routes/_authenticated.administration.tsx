@@ -32,6 +32,7 @@ function AdminPage() {
   const [households, setHouseholds] = useState<Household[]>([]);
   const [citizens, setCitizens] = useState<Citizen[]>([]);
   const [docs, setDocs] = useState<DocRow[]>([]);
+  const [lands, setLands] = useState<Land[]>([]);
   const [q, setQ] = useState("");
   const [dlgH, setDlgH] = useState(false);
   const [activeHouseholdId, setActiveHouseholdId] = useState<string | null>(null);
@@ -39,20 +40,26 @@ function AdminPage() {
   const [activeCitizenId, setActiveCitizenId] = useState<string | null>(null);
   const [sheetC, setSheetC] = useState(false);
   const [dlgA, setDlgA] = useState(false);
+  const [dlgL, setDlgL] = useState(false);
+  const [activeLandId, setActiveLandId] = useState<string | null>(null);
 
   const openCitizen = (id: string) => { setActiveCitizenId(id); setSheetC(true); };
 
   const openHousehold = (id: string | null) => { setActiveHouseholdId(id); setDlgH(true); };
 
+  const openLand = (id: string | null) => { setActiveLandId(id); setDlgL(true); };
+
   const reload = async () => {
-    const [{ data: h }, { data: c }, { data: d }] = await Promise.all([
+    const [{ data: h }, { data: c }, { data: d }, { data: l }] = await Promise.all([
       supabase.from("households").select("*").order("created_at", { ascending: false }),
       supabase.from("citizens").select("*").order("last_name"),
       supabase.from("documents_issued").select("id,doc_number,doc_type,issued_at,status,verify_code,citizen_snapshot").order("issued_at", { ascending: false }).limit(100),
+      supabase.from("lands" as never).select("*").order("created_at", { ascending: false }),
     ]);
     setHouseholds((h as Household[]) ?? []);
     setCitizens((c as Citizen[]) ?? []);
     setDocs((d as DocRow[]) ?? []);
+    setLands((l as Land[]) ?? []);
   };
 
   useEffect(() => { reload(); }, []);
