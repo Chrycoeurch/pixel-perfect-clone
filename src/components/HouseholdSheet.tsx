@@ -51,6 +51,7 @@ const emptyMember = (): MemberDraft => ({
 
 const emptyHousehold = () => ({
   household_number: "", head_full_name: "",
+  land_id: "",
   district: "", commune: "", fokontany: "", carreau_name: "", carreau_number: "",
   address: "", lat: "", lng: "",
   housing_type: "", house_area_m2: "", occupancy_status: "",
