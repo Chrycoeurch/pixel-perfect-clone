@@ -161,6 +161,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
         setHousehold({
           household_number: h.household_number ?? "",
           head_full_name: h.head_full_name ?? "",
+          land_id: (h as Record<string, unknown>).land_id as string ?? "",
           district: (h as Record<string, unknown>).district as string ?? "",
           commune: (h as Record<string, unknown>).commune as string ?? "",
           fokontany: h.fokontany ?? "",
