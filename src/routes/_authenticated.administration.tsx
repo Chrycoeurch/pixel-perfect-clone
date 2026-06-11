@@ -211,6 +211,7 @@ function AdminPage() {
       <CitizenSheet open={sheetC} onOpenChange={setSheetC} citizenId={activeCitizenId} />
       <CitizenDialog open={dlgC} onOpenChange={setDlgC} onSaved={reload} />
       <ActeDialog open={dlgA} onOpenChange={setDlgA} onSaved={reload} />
+      <LandDialog open={dlgL} onOpenChange={setDlgL} landId={activeLandId} onSaved={reload} />
     </div>
   );
 }
