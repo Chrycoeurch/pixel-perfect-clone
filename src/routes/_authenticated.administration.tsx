@@ -110,6 +110,31 @@ function AdminPage() {
             </div>
           </div>
 
+          <TabsContent value="terrains" className="mt-4">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <Table>
+                <TableHeader><TableRow><TableHead>Code</TableHead><TableHead>Nom</TableHead><TableHead>Fokontany</TableHead><TableHead className="text-right">Superficie (m²)</TableHead><TableHead>Statut</TableHead><TableHead className="text-right">Foyers</TableHead><TableHead>GPS</TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {lands.filter((l) => matches(l.code) || matches(l.name) || matches(l.fokontany)).map((l) => {
+                    const fc = households.filter((h) => (h as unknown as { land_id?: string }).land_id === l.id).length;
+                    return (
+                      <TableRow key={l.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openLand(l.id)}>
+                        <TableCell className="font-mono">{l.code ?? "—"}</TableCell>
+                        <TableCell className="font-medium">{l.name}</TableCell>
+                        <TableCell>{l.fokontany ?? "—"}</TableCell>
+                        <TableCell className="text-right font-mono">{l.total_area_m2 ?? "—"}</TableCell>
+                        <TableCell>{l.legal_status ? <Badge variant="secondary">{l.legal_status}</Badge> : "—"}</TableCell>
+                        <TableCell className="text-right"><Badge variant="secondary">{fc}</Badge></TableCell>
+                        <TableCell className="text-muted-foreground text-xs">{l.lat != null && l.lng != null ? <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" />{l.lat.toFixed(4)}, {l.lng.toFixed(4)}</span> : "—"}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {lands.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-12">Aucun terrain. Ajoutez le premier.</TableCell></TableRow>}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+
           <TabsContent value="foyers" className="mt-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <Table>
