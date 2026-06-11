@@ -234,6 +234,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
     const payload = {
       household_number: household.household_number,
       head_full_name: household.head_full_name,
+      land_id: household.land_id || null,
       district: household.district || null,
       commune: household.commune || null,
       fokontany: household.fokontany || null,
