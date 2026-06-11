@@ -81,6 +81,7 @@ function AdminPage() {
         description="Foyers, citoyens et délivrance d'actes avec vérification QR."
         actions={
           <>
+            {tab === "terrains" && <Button onClick={() => openLand(null)}><Plus className="w-4 h-4 mr-1" />Terrain</Button>}
             {tab === "foyers" && <Button onClick={() => openHousehold(null)}><Plus className="w-4 h-4 mr-1" />Foyer</Button>}
             {tab === "citoyens" && <Button onClick={() => setDlgC(true)}><Plus className="w-4 h-4 mr-1" />Citoyen</Button>}
             {tab === "actes" && <Button onClick={() => setDlgA(true)}><FileCheck2 className="w-4 h-4 mr-1" />Délivrer un acte</Button>}
@@ -88,7 +89,8 @@ function AdminPage() {
         }
       />
       <div className="p-6 lg:p-10 space-y-6">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
+          <Stat label="Terrains" value={lands.length} />
           <Stat label="Foyers" value={households.length} />
           <Stat label="Citoyens" value={citizens.length} />
           <Stat label="Actes délivrés" value={docs.length} />
@@ -97,6 +99,7 @@ function AdminPage() {
         <Tabs value={tab} onValueChange={setTab}>
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <TabsList>
+              <TabsTrigger value="terrains">Terrains ({lands.length})</TabsTrigger>
               <TabsTrigger value="foyers">Foyers ({households.length})</TabsTrigger>
               <TabsTrigger value="citoyens">Citoyens ({citizens.length})</TabsTrigger>
               <TabsTrigger value="actes">Actes ({docs.length})</TabsTrigger>
