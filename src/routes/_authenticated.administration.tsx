@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, FileCheck2, Download } from "lucide-react";
+import { Plus, Search, FileCheck2, Download, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HouseholdSheet } from "@/components/HouseholdSheet";
 import { CitizenSheet } from "@/components/CitizenSheet";
 import { CitizenDialog } from "@/components/CitizenDialog";
 import { ActeDialog } from "@/components/ActeDialog";
+import { LandDialog } from "@/components/LandDialog";
 import { DOC_TYPES, SEX_LABEL } from "@/lib/acte-types";
 import { toast } from "sonner";
+
+interface Land { id: string; code: string | null; name: string; fokontany: string | null; total_area_m2: number | null; legal_status: string | null; lat: number | null; lng: number | null }
 
 export const Route = createFileRoute("/_authenticated/administration")({
   component: AdminPage,
