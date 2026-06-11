@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, FileCheck2, Download } from "lucide-react";
+import { Plus, Search, FileCheck2, Download, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HouseholdSheet } from "@/components/HouseholdSheet";
 import { CitizenSheet } from "@/components/CitizenSheet";
 import { CitizenDialog } from "@/components/CitizenDialog";
 import { ActeDialog } from "@/components/ActeDialog";
+import { LandDialog } from "@/components/LandDialog";
 import { DOC_TYPES, SEX_LABEL } from "@/lib/acte-types";
 import { toast } from "sonner";
+
+interface Land { id: string; code: string | null; name: string; fokontany: string | null; total_area_m2: number | null; legal_status: string | null; lat: number | null; lng: number | null }
 
 export const Route = createFileRoute("/_authenticated/administration")({
   component: AdminPage,
@@ -29,6 +32,7 @@ function AdminPage() {
   const [households, setHouseholds] = useState<Household[]>([]);
   const [citizens, setCitizens] = useState<Citizen[]>([]);
   const [docs, setDocs] = useState<DocRow[]>([]);
+  const [lands, setLands] = useState<Land[]>([]);
   const [q, setQ] = useState("");
   const [dlgH, setDlgH] = useState(false);
   const [activeHouseholdId, setActiveHouseholdId] = useState<string | null>(null);
@@ -36,20 +40,26 @@ function AdminPage() {
   const [activeCitizenId, setActiveCitizenId] = useState<string | null>(null);
   const [sheetC, setSheetC] = useState(false);
   const [dlgA, setDlgA] = useState(false);
+  const [dlgL, setDlgL] = useState(false);
+  const [activeLandId, setActiveLandId] = useState<string | null>(null);
 
   const openCitizen = (id: string) => { setActiveCitizenId(id); setSheetC(true); };
 
   const openHousehold = (id: string | null) => { setActiveHouseholdId(id); setDlgH(true); };
 
+  const openLand = (id: string | null) => { setActiveLandId(id); setDlgL(true); };
+
   const reload = async () => {
-    const [{ data: h }, { data: c }, { data: d }] = await Promise.all([
+    const [{ data: h }, { data: c }, { data: d }, { data: l }] = await Promise.all([
       supabase.from("households").select("*").order("created_at", { ascending: false }),
       supabase.from("citizens").select("*").order("last_name"),
       supabase.from("documents_issued").select("id,doc_number,doc_type,issued_at,status,verify_code,citizen_snapshot").order("issued_at", { ascending: false }).limit(100),
+      supabase.from("lands" as never).select("*").order("created_at", { ascending: false }),
     ]);
     setHouseholds((h as Household[]) ?? []);
     setCitizens((c as Citizen[]) ?? []);
     setDocs((d as DocRow[]) ?? []);
+    setLands((l as Land[]) ?? []);
   };
 
   useEffect(() => { reload(); }, []);
@@ -71,6 +81,7 @@ function AdminPage() {
         description="Foyers, citoyens et délivrance d'actes avec vérification QR."
         actions={
           <>
+            {tab === "terrains" && <Button onClick={() => openLand(null)}><Plus className="w-4 h-4 mr-1" />Terrain</Button>}
             {tab === "foyers" && <Button onClick={() => openHousehold(null)}><Plus className="w-4 h-4 mr-1" />Foyer</Button>}
             {tab === "citoyens" && <Button onClick={() => setDlgC(true)}><Plus className="w-4 h-4 mr-1" />Citoyen</Button>}
             {tab === "actes" && <Button onClick={() => setDlgA(true)}><FileCheck2 className="w-4 h-4 mr-1" />Délivrer un acte</Button>}
@@ -78,7 +89,8 @@ function AdminPage() {
         }
       />
       <div className="p-6 lg:p-10 space-y-6">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
+          <Stat label="Terrains" value={lands.length} />
           <Stat label="Foyers" value={households.length} />
           <Stat label="Citoyens" value={citizens.length} />
           <Stat label="Actes délivrés" value={docs.length} />
@@ -87,6 +99,7 @@ function AdminPage() {
         <Tabs value={tab} onValueChange={setTab}>
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <TabsList>
+              <TabsTrigger value="terrains">Terrains ({lands.length})</TabsTrigger>
               <TabsTrigger value="foyers">Foyers ({households.length})</TabsTrigger>
               <TabsTrigger value="citoyens">Citoyens ({citizens.length})</TabsTrigger>
               <TabsTrigger value="actes">Actes ({docs.length})</TabsTrigger>
@@ -96,6 +109,31 @@ function AdminPage() {
               <Input className="pl-9 w-64" placeholder="Rechercher…" value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
           </div>
+
+          <TabsContent value="terrains" className="mt-4">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <Table>
+                <TableHeader><TableRow><TableHead>Code</TableHead><TableHead>Nom</TableHead><TableHead>Fokontany</TableHead><TableHead className="text-right">Superficie (m²)</TableHead><TableHead>Statut</TableHead><TableHead className="text-right">Foyers</TableHead><TableHead>GPS</TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {lands.filter((l) => matches(l.code) || matches(l.name) || matches(l.fokontany)).map((l) => {
+                    const fc = households.filter((h) => (h as unknown as { land_id?: string }).land_id === l.id).length;
+                    return (
+                      <TableRow key={l.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openLand(l.id)}>
+                        <TableCell className="font-mono">{l.code ?? "—"}</TableCell>
+                        <TableCell className="font-medium">{l.name}</TableCell>
+                        <TableCell>{l.fokontany ?? "—"}</TableCell>
+                        <TableCell className="text-right font-mono">{l.total_area_m2 ?? "—"}</TableCell>
+                        <TableCell>{l.legal_status ? <Badge variant="secondary">{l.legal_status}</Badge> : "—"}</TableCell>
+                        <TableCell className="text-right"><Badge variant="secondary">{fc}</Badge></TableCell>
+                        <TableCell className="text-muted-foreground text-xs">{l.lat != null && l.lng != null ? <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" />{l.lat.toFixed(4)}, {l.lng.toFixed(4)}</span> : "—"}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {lands.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-12">Aucun terrain. Ajoutez le premier.</TableCell></TableRow>}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
 
           <TabsContent value="foyers" className="mt-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -173,6 +211,7 @@ function AdminPage() {
       <CitizenSheet open={sheetC} onOpenChange={setSheetC} citizenId={activeCitizenId} />
       <CitizenDialog open={dlgC} onOpenChange={setDlgC} onSaved={reload} />
       <ActeDialog open={dlgA} onOpenChange={setDlgA} onSaved={reload} />
+      <LandDialog open={dlgL} onOpenChange={setDlgL} landId={activeLandId} onSaved={reload} />
     </div>
   );
 }
