@@ -411,6 +411,7 @@ export type Database = {
           housing_type: string | null
           id: string
           land_area_m2: number | null
+          land_id: string | null
           land_legal_status: string | null
           lat: number | null
           lng: number | null
@@ -440,6 +441,7 @@ export type Database = {
           housing_type?: string | null
           id?: string
           land_area_m2?: number | null
+          land_id?: string | null
           land_legal_status?: string | null
           lat?: number | null
           lng?: number | null
@@ -469,6 +471,7 @@ export type Database = {
           housing_type?: string | null
           id?: string
           land_area_m2?: number | null
+          land_id?: string | null
           land_legal_status?: string | null
           lat?: number | null
           lng?: number | null
@@ -476,6 +479,83 @@ export type Database = {
           notes?: string | null
           occupancy_status?: string | null
           socio_level?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "households_land_id_fkey"
+            columns: ["land_id"]
+            isOneToOne: false
+            referencedRelation: "lands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lands: {
+        Row: {
+          address: string | null
+          carreau_name: string | null
+          carreau_number: string | null
+          code: string | null
+          commune: string | null
+          created_at: string
+          created_by: string | null
+          district: string | null
+          document_photos: string[] | null
+          fokontany: string | null
+          id: string
+          lat: number | null
+          legal_status: string | null
+          lng: number | null
+          name: string
+          notes: string | null
+          owner_label: string | null
+          photos: string[] | null
+          total_area_m2: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          carreau_name?: string | null
+          carreau_number?: string | null
+          code?: string | null
+          commune?: string | null
+          created_at?: string
+          created_by?: string | null
+          district?: string | null
+          document_photos?: string[] | null
+          fokontany?: string | null
+          id?: string
+          lat?: number | null
+          legal_status?: string | null
+          lng?: number | null
+          name: string
+          notes?: string | null
+          owner_label?: string | null
+          photos?: string[] | null
+          total_area_m2?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          carreau_name?: string | null
+          carreau_number?: string | null
+          code?: string | null
+          commune?: string | null
+          created_at?: string
+          created_by?: string | null
+          district?: string | null
+          document_photos?: string[] | null
+          fokontany?: string | null
+          id?: string
+          lat?: number | null
+          legal_status?: string | null
+          lng?: number | null
+          name?: string
+          notes?: string | null
+          owner_label?: string | null
+          photos?: string[] | null
+          total_area_m2?: number | null
           updated_at?: string
         }
         Relationships: []
