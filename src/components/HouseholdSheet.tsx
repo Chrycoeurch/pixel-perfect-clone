@@ -396,6 +396,21 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
 
           {/* Localisation */}
           <SectionCard icon={MapPin} title="Localisation administrative" color="hsl(142 71% 45%)">
+            <div className="mb-3">
+              <Label className="text-xs flex items-center gap-1"><Landmark className="w-3 h-3" />Terrain de rattachement</Label>
+              <Select value={household.land_id || "_none"} onValueChange={(v) => upd("land_id", v === "_none" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="Aucun terrain" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">— Aucun terrain —</SelectItem>
+                  {lands.map((l) => (
+                    <SelectItem key={l.id} value={l.id}>
+                      {l.code ? `${l.code} · ` : ""}{l.name}{l.fokontany ? ` (${l.fokontany})` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground mt-1">Les informations du terrain (superficie, statut juridique, GPS) sont partagées entre tous les foyers du même terrain.</p>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="text-xs">District *</Label><Input value={household.district} onChange={(e) => upd("district", e.target.value)} placeholder="Nom du district" /></div>
               <div><Label className="text-xs">Commune *</Label><Input value={household.commune} onChange={(e) => upd("commune", e.target.value)} placeholder="Nom de la commune" /></div>
