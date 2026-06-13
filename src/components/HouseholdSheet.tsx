@@ -556,7 +556,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
                 <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div><Label className="text-xs">Lien</Label>
-                      <Select value={memberDraft.relationship} onValueChange={(v) => updM("relationship", v)}>
+                      <Select value={memberDraft.relationship} onValueChange={handleRelationshipChange}>
                         <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                         <SelectContent>{RELATIONSHIPS.map((r) => <SelectItem key={r.v} value={r.v}>{r.l}</SelectItem>)}</SelectContent>
                       </Select>
@@ -573,6 +573,13 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
                     <div><Label className="text-xs">CIN</Label><Input className="h-9" value={memberDraft.cin} onChange={(e) => updM("cin", e.target.value)} /></div>
                     <div><Label className="text-xs">Profession</Label><Input className="h-9" value={memberDraft.profession} onChange={(e) => updM("profession", e.target.value)} /></div>
                     <div><Label className="text-xs">Téléphone</Label><Input className="h-9" value={memberDraft.phone} onChange={(e) => updM("phone", e.target.value)} /></div>
+                    <div className="col-span-2 border-t border-border pt-2 mt-1">
+                      <p className="text-[11px] text-muted-foreground mb-2">Filiation — pré-remplie selon le lien avec le chef de foyer (modifiable).</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div><Label className="text-xs">Nom du père</Label><Input className="h-9" value={memberDraft.father_name} onChange={(e) => updM("father_name", e.target.value)} placeholder="Nom complet du père" /></div>
+                        <div><Label className="text-xs">Nom de la mère</Label><Input className="h-9" value={memberDraft.mother_name} onChange={(e) => updM("mother_name", e.target.value)} placeholder="Nom complet de la mère" /></div>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button size="sm" variant="ghost" onClick={cancelMemberForm}><X className="w-4 h-4 mr-1" />Annuler</Button>
