@@ -39,14 +39,36 @@ interface Citizen {
   id: string; last_name: string; first_names: string; sex: "M" | "F";
   birth_date: string | null; cin: string | null; phone: string | null;
   profession: string | null; relationship: string | null; is_head: boolean; household_id: string | null;
+  father_name: string | null; mother_name: string | null;
 }
 interface MemberDraft {
   last_name: string; first_names: string; sex: "M" | "F"; birth_date: string;
   cin: string; phone: string; profession: string; relationship: string;
+  father_name: string; mother_name: string;
 }
 const emptyMember = (): MemberDraft => ({
   last_name: "", first_names: "", sex: "M", birth_date: "", cin: "", phone: "", profession: "", relationship: "fils",
+  father_name: "", mother_name: "",
 });
+
+// Calcule les parents proposés en fonction de la relation au chef de foyer
+function inferParents(
+  relationship: string,
+  head: { full_name: string; sex: "M" | "F"; father_name: string | null; mother_name: string | null } | null,
+  spouseFullName: string | null,
+): { father_name: string; mother_name: string } {
+  if (!head) return { father_name: "", mother_name: "" };
+  if (relationship === "fils" || relationship === "fille") {
+    // Le chef est l'un des parents (selon son sexe), l'époux/épouse l'autre
+    if (head.sex === "M") return { father_name: head.full_name, mother_name: spouseFullName ?? "" };
+    return { father_name: spouseFullName ?? "", mother_name: head.full_name };
+  }
+  if (relationship === "frere" || relationship === "soeur") {
+    // Mêmes parents que le chef
+    return { father_name: head.father_name ?? "", mother_name: head.mother_name ?? "" };
+  }
+  return { father_name: "", mother_name: "" };
+}
 
 interface Land {
   id: string; code: string | null; name: string;
