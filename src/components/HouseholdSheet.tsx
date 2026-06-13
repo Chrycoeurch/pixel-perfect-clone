@@ -34,7 +34,6 @@ const RELATIONSHIPS = [
 
 const HOUSING_TYPES = ["Maison", "Maison traditionnelle", "Abri", "Appartement", "Studio", "Baraquement", "Autre"];
 const OCCUPANCY = ["Propriétaire", "Locataire", "Hébergé", "Squatteur"];
-const LAND_STATUS = ["Titre foncier", "Permis d'habiter", "Jorolava", "Occupation informelle", "En cours de régularisation"];
 
 interface Citizen {
   id: string; last_name: string; first_names: string; sex: "M" | "F";
@@ -49,13 +48,19 @@ const emptyMember = (): MemberDraft => ({
   last_name: "", first_names: "", sex: "M", birth_date: "", cin: "", phone: "", profession: "", relationship: "fils",
 });
 
+interface Land {
+  id: string; code: string | null; name: string;
+  district: string | null; commune: string | null; fokontany: string | null;
+  carreau_name: string | null; carreau_number: string | null;
+  lat: number | null; lng: number | null;
+  total_area_m2: number | null; legal_status: string | null; owner_label: string | null;
+}
+
 const emptyHousehold = () => ({
   household_number: "", head_full_name: "",
   land_id: "",
-  district: "", commune: "", fokontany: "", carreau_name: "", carreau_number: "",
-  address: "", lat: "", lng: "",
+  address: "",
   housing_type: "", house_area_m2: "", occupancy_status: "",
-  land_area_m2: "", land_legal_status: "",
   head_phone: "", head_facebook: "",
   agent_notes: "",
   housing_photos: [] as string[], document_photos: [] as string[],
