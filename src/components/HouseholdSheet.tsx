@@ -311,6 +311,38 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
     setMembers((data as Citizen[]) ?? []); onSaved();
   };
 
+  // Chef du foyer + époux/épouse (utilisés pour pré-remplir la filiation)
+  const headMember = useMemo(() => members.find((m) => m.is_head || m.relationship === "chef") ?? null, [members]);
+  const spouseMember = useMemo(() => members.find((m) => m.relationship === "epoux") ?? null, [members]);
+  const headInfo = useMemo(() => {
+    if (headMember) return {
+      full_name: `${headMember.last_name} ${headMember.first_names}`.trim(),
+      sex: headMember.sex,
+      father_name: headMember.father_name,
+      mother_name: headMember.mother_name,
+    };
+    if (household.head_full_name.trim()) return {
+      full_name: household.head_full_name.trim(),
+      sex: "M" as const, // par défaut, l'utilisateur peut corriger
+      father_name: null, mother_name: null,
+    };
+    return null;
+  }, [headMember, household.head_full_name]);
+  const spouseFullName = spouseMember ? `${spouseMember.last_name} ${spouseMember.first_names}`.trim() : null;
+
+  // Auto-remplissage des parents lors du changement de relation (uniquement si les champs sont vides)
+  const handleRelationshipChange = (v: string) => {
+    setMemberDraft((d) => {
+      const inferred = inferParents(v, headInfo, spouseFullName);
+      return {
+        ...d,
+        relationship: v,
+        father_name: d.father_name.trim() ? d.father_name : inferred.father_name,
+        mother_name: d.mother_name.trim() ? d.mother_name : inferred.mother_name,
+      };
+    });
+  };
+
   const addMember = async () => {
     if (!householdId) { toast.error("Enregistrez d'abord le foyer"); return; }
     if (!memberDraft.last_name.trim() || !memberDraft.first_names.trim()) { toast.error("Nom et prénoms requis"); return; }
@@ -318,6 +350,8 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
     const payload: Record<string, unknown> = {
       household_id: householdId, last_name: memberDraft.last_name, first_names: memberDraft.first_names,
       sex: memberDraft.sex, relationship: memberDraft.relationship, is_head: isHead,
+      father_name: memberDraft.father_name || null,
+      mother_name: memberDraft.mother_name || null,
     };
     if (memberDraft.birth_date) payload.birth_date = memberDraft.birth_date;
     if (memberDraft.cin) payload.cin = memberDraft.cin;
@@ -334,6 +368,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
       last_name: m.last_name, first_names: m.first_names, sex: m.sex,
       birth_date: m.birth_date ?? "", cin: m.cin ?? "", phone: m.phone ?? "",
       profession: m.profession ?? "", relationship: m.relationship ?? "autre",
+      father_name: m.father_name ?? "", mother_name: m.mother_name ?? "",
     });
   };
 
@@ -345,6 +380,8 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
       sex: memberDraft.sex, relationship: memberDraft.relationship, is_head: isHead,
       birth_date: memberDraft.birth_date || null, cin: memberDraft.cin || null,
       phone: memberDraft.phone || null, profession: memberDraft.profession || null,
+      father_name: memberDraft.father_name || null,
+      mother_name: memberDraft.mother_name || null,
     };
     const { error } = await supabase.from("citizens").update(payload as never).eq("id", editingMember);
     if (error) return toast.error(error.message);
