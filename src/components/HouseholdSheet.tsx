@@ -199,20 +199,10 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
   const upd = <K extends keyof ReturnType<typeof emptyHousehold>>(k: K, v: ReturnType<typeof emptyHousehold>[K]) => setHousehold((f) => ({ ...f, [k]: v }));
   const updM = (k: keyof MemberDraft, v: string) => setMemberDraft((f) => ({ ...f, [k]: v }));
 
-  const locateGPS = () => {
-    if (!navigator.geolocation) { toast.error("Géolocalisation non disponible"); return; }
-    setGpsLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => { upd("lat", pos.coords.latitude.toFixed(6)); upd("lng", pos.coords.longitude.toFixed(6)); setGpsLoading(false); toast.success("Position acquise"); },
-      (err) => { setGpsLoading(false); toast.error(err.message); },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
   const completion = useMemo(() => {
     const fields = [
       household.household_number, household.head_full_name,
-      household.district, household.commune, household.fokontany, household.address,
+      household.land_id, household.address,
       household.housing_type, household.occupancy_status, household.head_phone,
     ];
     const done = fields.filter((f) => f && f.toString().trim()).length;
@@ -223,27 +213,25 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
     if (!household.household_number.trim() || !household.head_full_name.trim()) {
       toast.error("N° de foyer et chef de famille requis"); return;
     }
-    const lat = household.lat.trim() ? Number(household.lat) : null;
-    const lng = household.lng.trim() ? Number(household.lng) : null;
-    if ((lat !== null && Number.isNaN(lat)) || (lng !== null && Number.isNaN(lng))) {
-      toast.error("Coordonnées invalides"); return;
-    }
-    const payload = {
+    const payload: Record<string, unknown> = {
       household_number: household.household_number,
       head_full_name: household.head_full_name,
       land_id: household.land_id || null,
-      district: household.district || null,
-      commune: household.commune || null,
-      fokontany: household.fokontany || null,
-      carreau_name: household.carreau_name || null,
-      carreau_number: household.carreau_number || null,
+      // Champs hérités du terrain (dénormalisés pour la lisibilité dans la liste)
+      district: selectedLand?.district ?? null,
+      commune: selectedLand?.commune ?? null,
+      fokontany: selectedLand?.fokontany ?? null,
+      carreau_name: selectedLand?.carreau_name ?? null,
+      carreau_number: selectedLand?.carreau_number ?? null,
+      lat: selectedLand?.lat ?? null,
+      lng: selectedLand?.lng ?? null,
+      land_area_m2: selectedLand?.total_area_m2 ?? null,
+      land_legal_status: selectedLand?.legal_status ?? null,
+      // Champs propres au foyer
       address: household.address || null,
-      lat, lng,
       housing_type: household.housing_type || null,
       house_area_m2: household.house_area_m2 ? Number(household.house_area_m2) : null,
       occupancy_status: household.occupancy_status || null,
-      land_area_m2: household.land_area_m2 ? Number(household.land_area_m2) : null,
-      land_legal_status: household.land_legal_status || null,
       head_phone: household.head_phone || null,
       head_facebook: household.head_facebook || null,
       agent_notes: household.agent_notes || null,
