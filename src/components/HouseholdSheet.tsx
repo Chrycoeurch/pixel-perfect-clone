@@ -141,7 +141,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
   const [memberDraft, setMemberDraft] = useState<MemberDraft>(emptyMember());
   const [adding, setAdding] = useState(false);
   const [qrUrl, setQrUrl] = useState<string>("");
-  const [gpsLoading, setGpsLoading] = useState(false);
+  
   const [uploadingHouse, setUploadingHouse] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [lands, setLands] = useState<Land[]>([]);
