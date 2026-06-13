@@ -379,43 +379,50 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
             </div>
           </SectionCard>
 
-          {/* Localisation */}
-          <SectionCard icon={MapPin} title="Localisation administrative" color="hsl(142 71% 45%)">
-            <div className="mb-3">
-              <Label className="text-xs flex items-center gap-1"><Landmark className="w-3 h-3" />Terrain de rattachement</Label>
-              <Select value={household.land_id || "_none"} onValueChange={(v) => upd("land_id", v === "_none" ? "" : v)}>
-                <SelectTrigger><SelectValue placeholder="Aucun terrain" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="_none">— Aucun terrain —</SelectItem>
-                  {lands.map((l) => (
-                    <SelectItem key={l.id} value={l.id}>
-                      {l.code ? `${l.code} · ` : ""}{l.name}{l.fokontany ? ` (${l.fokontany})` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-[11px] text-muted-foreground mt-1">Les informations du terrain (superficie, statut juridique, GPS) sont partagées entre tous les foyers du même terrain.</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs">District *</Label><Input value={household.district} onChange={(e) => upd("district", e.target.value)} placeholder="Nom du district" /></div>
-              <div><Label className="text-xs">Commune *</Label><Input value={household.commune} onChange={(e) => upd("commune", e.target.value)} placeholder="Nom de la commune" /></div>
-              <div className="col-span-2"><Label className="text-xs">Fokontany *</Label><Input value={household.fokontany} onChange={(e) => upd("fokontany", e.target.value)} placeholder="Nom du fokontany" /></div>
-              <div><Label className="text-xs">Nom du carreau</Label><Input value={household.carreau_name} onChange={(e) => upd("carreau_name", e.target.value)} /></div>
-              <div><Label className="text-xs">N° carreau</Label><Input value={household.carreau_number} onChange={(e) => upd("carreau_number", e.target.value)} /></div>
-              <div className="col-span-2"><Label className="text-xs">Adresse complète *</Label><Textarea rows={2} value={household.address} onChange={(e) => upd("address", e.target.value)} placeholder="Numéro, rue, avenue, références…" /></div>
-            </div>
-            <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3">
-              <div className="flex items-center justify-between mb-2">
-                <Label className="text-xs flex items-center gap-1"><MapPin className="w-3 h-3" />Coordonnées GPS</Label>
-                <Button size="sm" variant="outline" onClick={locateGPS} disabled={gpsLoading} className="h-7 text-xs">
-                  {gpsLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <MapPin className="w-3 h-3 mr-1" />}Localiser
-                </Button>
+          {/* Terrain de rattachement */}
+          <SectionCard icon={Landmark} title="Terrain de rattachement" color="hsl(280 70% 60%)">
+            <Label className="text-xs">Sélectionner un terrain *</Label>
+            <Select value={household.land_id || "_none"} onValueChange={(v) => upd("land_id", v === "_none" ? "" : v)}>
+              <SelectTrigger><SelectValue placeholder="— Choisir un terrain —" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_none">— Aucun terrain —</SelectItem>
+                {lands.map((l) => (
+                  <SelectItem key={l.id} value={l.id}>
+                    {l.code ? `${l.code} · ` : ""}{l.name}{l.fokontany ? ` (${l.fokontany})` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Toutes les informations géographiques et foncières (district, commune, fokontany, carreau, GPS, superficie, statut légal) proviennent du terrain et sont partagées entre les foyers qui y sont rattachés.
+            </p>
+
+            {selectedLand ? (
+              <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <div className="font-medium">{selectedLand.name}</div>
+                  {selectedLand.code && <Badge variant="secondary" className="font-mono text-xs">{selectedLand.code}</Badge>}
+                </div>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <div><span className="text-foreground/70">District :</span> {selectedLand.district ?? "—"}</div>
+                  <div><span className="text-foreground/70">Commune :</span> {selectedLand.commune ?? "—"}</div>
+                  <div className="col-span-2"><span className="text-foreground/70">Fokontany :</span> {selectedLand.fokontany ?? "—"}</div>
+                  <div><span className="text-foreground/70">Carreau :</span> {selectedLand.carreau_name ?? "—"}</div>
+                  <div><span className="text-foreground/70">N° carreau :</span> {selectedLand.carreau_number ?? "—"}</div>
+                  <div><span className="text-foreground/70">Superficie :</span> {selectedLand.total_area_m2 != null ? `${selectedLand.total_area_m2} m²` : "—"}</div>
+                  <div><span className="text-foreground/70">Statut :</span> {selectedLand.legal_status ?? "—"}</div>
+                  <div className="col-span-2 flex items-center gap-1"><MapPin className="w-3 h-3" />{selectedLand.lat != null && selectedLand.lng != null ? `${selectedLand.lat.toFixed(6)}, ${selectedLand.lng.toFixed(6)}` : "GPS non renseigné"}</div>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Input value={household.lat} onChange={(e) => upd("lat", e.target.value)} placeholder="Latitude" className="h-8" />
-                <Input value={household.lng} onChange={(e) => upd("lng", e.target.value)} placeholder="Longitude" className="h-8" />
-              </div>
-            </div>
+            ) : (
+              <p className="mt-3 text-xs text-muted-foreground italic">Sélectionnez un terrain pour afficher ses informations. Les terrains se gèrent dans l'onglet « Terrains ».</p>
+            )}
+          </SectionCard>
+
+          {/* Adresse spécifique du foyer */}
+          <SectionCard icon={MapPin} title="Adresse du foyer" color="hsl(142 71% 45%)">
+            <Label className="text-xs">Adresse / point de repère *</Label>
+            <Textarea rows={2} value={household.address} onChange={(e) => upd("address", e.target.value)} placeholder="Numéro de porte, étage, point de repère…" />
           </SectionCard>
 
           {/* Logement */}
@@ -424,23 +431,6 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
               <div><Label className="text-xs">Type de logement *</Label><div className="mt-2"><ChipGroup options={HOUSING_TYPES} value={household.housing_type} onChange={(v) => upd("housing_type", v)} /></div></div>
               <div><Label className="text-xs">Superficie de la maison (m²)</Label><Input type="number" inputMode="decimal" value={household.house_area_m2} onChange={(e) => upd("house_area_m2", e.target.value)} placeholder="Superficie de la maison" /></div>
               <div><Label className="text-xs">Statut d'occupation *</Label><div className="mt-2"><ChipGroup options={OCCUPANCY} value={household.occupancy_status} onChange={(v) => upd("occupancy_status", v)} /></div></div>
-            </div>
-          </SectionCard>
-
-          {/* Terrain */}
-          <SectionCard icon={Landmark} title="Terrain" color="hsl(280 70% 60%)">
-            <div className="space-y-3">
-              <div><Label className="text-xs">Superficie du terrain (m²)</Label><Input type="number" inputMode="decimal" value={household.land_area_m2} onChange={(e) => upd("land_area_m2", e.target.value)} placeholder="Superficie approximative du terrain" /></div>
-              <div><Label className="text-xs">Statut légal du terrain</Label>
-                <div className="mt-2 space-y-2">
-                  {LAND_STATUS.map((o) => (
-                    <button key={o} type="button" onClick={() => upd("land_legal_status", o === household.land_legal_status ? "" : o)}
-                      className={`w-full px-3 py-2 rounded-lg border text-sm text-left transition-colors ${household.land_legal_status === o ? "border-primary bg-primary/10 text-primary font-medium" : "border-border bg-background hover:bg-muted/50"}`}>
-                      {o}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
           </SectionCard>
 
