@@ -144,12 +144,13 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
   const [gpsLoading, setGpsLoading] = useState(false);
   const [uploadingHouse, setUploadingHouse] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
-  const [lands, setLands] = useState<{ id: string; name: string; code: string | null; fokontany: string | null }[]>([]);
+  const [lands, setLands] = useState<Land[]>([]);
+  const selectedLand = useMemo(() => lands.find((l) => l.id === household.land_id) ?? null, [lands, household.land_id]);
 
   useEffect(() => {
     if (!open) return;
-    supabase.from("lands" as never).select("id,name,code,fokontany").order("name").then(({ data }) => {
-      setLands((data as { id: string; name: string; code: string | null; fokontany: string | null }[]) ?? []);
+    supabase.from("lands" as never).select("*").order("name").then(({ data }) => {
+      setLands((data as Land[]) ?? []);
     });
   }, [open]);
 
