@@ -124,12 +124,14 @@ export type Database = {
           created_at: string
           created_by: string | null
           education: string | null
+          father_name: string | null
           first_names: string
           household_id: string | null
           id: string
           is_head: boolean
           last_name: string
           marital_status: Database["public"]["Enums"]["marital_status"] | null
+          mother_name: string | null
           notes: string | null
           phone: string | null
           profession: string | null
@@ -144,12 +146,14 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           education?: string | null
+          father_name?: string | null
           first_names: string
           household_id?: string | null
           id?: string
           is_head?: boolean
           last_name: string
           marital_status?: Database["public"]["Enums"]["marital_status"] | null
+          mother_name?: string | null
           notes?: string | null
           phone?: string | null
           profession?: string | null
@@ -164,12 +168,14 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           education?: string | null
+          father_name?: string | null
           first_names?: string
           household_id?: string | null
           id?: string
           is_head?: boolean
           last_name?: string
           marital_status?: Database["public"]["Enums"]["marital_status"] | null
+          mother_name?: string | null
           notes?: string | null
           phone?: string | null
           profession?: string | null

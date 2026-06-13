@@ -39,14 +39,36 @@ interface Citizen {
   id: string; last_name: string; first_names: string; sex: "M" | "F";
   birth_date: string | null; cin: string | null; phone: string | null;
   profession: string | null; relationship: string | null; is_head: boolean; household_id: string | null;
+  father_name: string | null; mother_name: string | null;
 }
 interface MemberDraft {
   last_name: string; first_names: string; sex: "M" | "F"; birth_date: string;
   cin: string; phone: string; profession: string; relationship: string;
+  father_name: string; mother_name: string;
 }
 const emptyMember = (): MemberDraft => ({
   last_name: "", first_names: "", sex: "M", birth_date: "", cin: "", phone: "", profession: "", relationship: "fils",
+  father_name: "", mother_name: "",
 });
+
+// Calcule les parents proposés en fonction de la relation au chef de foyer
+function inferParents(
+  relationship: string,
+  head: { full_name: string; sex: "M" | "F"; father_name: string | null; mother_name: string | null } | null,
+  spouseFullName: string | null,
+): { father_name: string; mother_name: string } {
+  if (!head) return { father_name: "", mother_name: "" };
+  if (relationship === "fils" || relationship === "fille") {
+    // Le chef est l'un des parents (selon son sexe), l'époux/épouse l'autre
+    if (head.sex === "M") return { father_name: head.full_name, mother_name: spouseFullName ?? "" };
+    return { father_name: spouseFullName ?? "", mother_name: head.full_name };
+  }
+  if (relationship === "frere" || relationship === "soeur") {
+    // Mêmes parents que le chef
+    return { father_name: head.father_name ?? "", mother_name: head.mother_name ?? "" };
+  }
+  return { father_name: "", mother_name: "" };
+}
 
 interface Land {
   id: string; code: string | null; name: string;
@@ -289,6 +311,38 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
     setMembers((data as Citizen[]) ?? []); onSaved();
   };
 
+  // Chef du foyer + époux/épouse (utilisés pour pré-remplir la filiation)
+  const headMember = useMemo(() => members.find((m) => m.is_head || m.relationship === "chef") ?? null, [members]);
+  const spouseMember = useMemo(() => members.find((m) => m.relationship === "epoux") ?? null, [members]);
+  const headInfo = useMemo(() => {
+    if (headMember) return {
+      full_name: `${headMember.last_name} ${headMember.first_names}`.trim(),
+      sex: headMember.sex,
+      father_name: headMember.father_name,
+      mother_name: headMember.mother_name,
+    };
+    if (household.head_full_name.trim()) return {
+      full_name: household.head_full_name.trim(),
+      sex: "M" as const, // par défaut, l'utilisateur peut corriger
+      father_name: null, mother_name: null,
+    };
+    return null;
+  }, [headMember, household.head_full_name]);
+  const spouseFullName = spouseMember ? `${spouseMember.last_name} ${spouseMember.first_names}`.trim() : null;
+
+  // Auto-remplissage des parents lors du changement de relation (uniquement si les champs sont vides)
+  const handleRelationshipChange = (v: string) => {
+    setMemberDraft((d) => {
+      const inferred = inferParents(v, headInfo, spouseFullName);
+      return {
+        ...d,
+        relationship: v,
+        father_name: d.father_name.trim() ? d.father_name : inferred.father_name,
+        mother_name: d.mother_name.trim() ? d.mother_name : inferred.mother_name,
+      };
+    });
+  };
+
   const addMember = async () => {
     if (!householdId) { toast.error("Enregistrez d'abord le foyer"); return; }
     if (!memberDraft.last_name.trim() || !memberDraft.first_names.trim()) { toast.error("Nom et prénoms requis"); return; }
@@ -296,6 +350,8 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
     const payload: Record<string, unknown> = {
       household_id: householdId, last_name: memberDraft.last_name, first_names: memberDraft.first_names,
       sex: memberDraft.sex, relationship: memberDraft.relationship, is_head: isHead,
+      father_name: memberDraft.father_name || null,
+      mother_name: memberDraft.mother_name || null,
     };
     if (memberDraft.birth_date) payload.birth_date = memberDraft.birth_date;
     if (memberDraft.cin) payload.cin = memberDraft.cin;
@@ -312,6 +368,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
       last_name: m.last_name, first_names: m.first_names, sex: m.sex,
       birth_date: m.birth_date ?? "", cin: m.cin ?? "", phone: m.phone ?? "",
       profession: m.profession ?? "", relationship: m.relationship ?? "autre",
+      father_name: m.father_name ?? "", mother_name: m.mother_name ?? "",
     });
   };
 
@@ -323,6 +380,8 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
       sex: memberDraft.sex, relationship: memberDraft.relationship, is_head: isHead,
       birth_date: memberDraft.birth_date || null, cin: memberDraft.cin || null,
       phone: memberDraft.phone || null, profession: memberDraft.profession || null,
+      father_name: memberDraft.father_name || null,
+      mother_name: memberDraft.mother_name || null,
     };
     const { error } = await supabase.from("citizens").update(payload as never).eq("id", editingMember);
     if (error) return toast.error(error.message);
@@ -497,7 +556,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
                 <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div><Label className="text-xs">Lien</Label>
-                      <Select value={memberDraft.relationship} onValueChange={(v) => updM("relationship", v)}>
+                      <Select value={memberDraft.relationship} onValueChange={handleRelationshipChange}>
                         <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                         <SelectContent>{RELATIONSHIPS.map((r) => <SelectItem key={r.v} value={r.v}>{r.l}</SelectItem>)}</SelectContent>
                       </Select>
@@ -514,6 +573,13 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
                     <div><Label className="text-xs">CIN</Label><Input className="h-9" value={memberDraft.cin} onChange={(e) => updM("cin", e.target.value)} /></div>
                     <div><Label className="text-xs">Profession</Label><Input className="h-9" value={memberDraft.profession} onChange={(e) => updM("profession", e.target.value)} /></div>
                     <div><Label className="text-xs">Téléphone</Label><Input className="h-9" value={memberDraft.phone} onChange={(e) => updM("phone", e.target.value)} /></div>
+                    <div className="col-span-2 border-t border-border pt-2 mt-1">
+                      <p className="text-[11px] text-muted-foreground mb-2">Filiation — pré-remplie selon le lien avec le chef de foyer (modifiable).</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div><Label className="text-xs">Nom du père</Label><Input className="h-9" value={memberDraft.father_name} onChange={(e) => updM("father_name", e.target.value)} placeholder="Nom complet du père" /></div>
+                        <div><Label className="text-xs">Nom de la mère</Label><Input className="h-9" value={memberDraft.mother_name} onChange={(e) => updM("mother_name", e.target.value)} placeholder="Nom complet de la mère" /></div>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button size="sm" variant="ghost" onClick={cancelMemberForm}><X className="w-4 h-4 mr-1" />Annuler</Button>
