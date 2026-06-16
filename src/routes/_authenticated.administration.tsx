@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/administration")({
 });
 
 interface Household { id: string; household_number: string; head_full_name: string; fokontany: string | null; member_count: number; address: string | null }
-interface Citizen { id: string; last_name: string; first_names: string; sex: "M" | "F"; cin: string | null; phone: string | null; profession: string | null; household_id: string | null }
+interface Citizen { id: string; last_name: string; first_names: string; sex: "M" | "F"; cin: string | null; phone: string | null; profession: string | null; household_id: string | null; father_name: string | null; mother_name: string | null }
 interface DocRow { id: string; doc_number: string; doc_type: keyof typeof DOC_TYPES; issued_at: string; status: string; verify_code: string; citizen_snapshot: { last_name: string; first_names: string } }
 
 function AdminPage() {
