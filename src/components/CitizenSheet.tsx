@@ -16,6 +16,7 @@ interface Citizen {
   profession: string | null; education: string | null; marital_status: keyof typeof MARITAL_LABEL | null;
   phone: string | null; is_head: boolean; relationship: string | null;
   household_id: string | null; notes: string | null; created_at: string;
+  father_name: string | null; mother_name: string | null;
 }
 interface Household { id: string; household_number: string; head_full_name: string; fokontany: string | null; address: string | null; member_count: number }
 interface Member { id: string; last_name: string; first_names: string; relationship: string | null; is_head: boolean }
