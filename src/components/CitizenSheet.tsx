@@ -127,6 +127,8 @@ export function CitizenSheet({ open, onOpenChange, citizenId }: Props) {
                 <Row label="Profession" value={citizen.profession ?? "—"} />
                 <Row label="Scolarité" value={citizen.education ?? "—"} />
                 <Row label="Téléphone" value={citizen.phone ?? "—"} />
+                <Row label="Nom du père" value={citizen.father_name ?? "—"} />
+                <Row label="Nom de la mère" value={citizen.mother_name ?? "—"} />
                 <Row label="Enregistré le" value={new Date(citizen.created_at).toLocaleDateString("fr-FR")} />
                 {citizen.notes && <Row label="Notes" value={citizen.notes} />}
               </TabsContent>
