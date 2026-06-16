@@ -16,6 +16,7 @@ interface Citizen {
   profession: string | null; education: string | null; marital_status: keyof typeof MARITAL_LABEL | null;
   phone: string | null; is_head: boolean; relationship: string | null;
   household_id: string | null; notes: string | null; created_at: string;
+  father_name: string | null; mother_name: string | null;
 }
 interface Household { id: string; household_number: string; head_full_name: string; fokontany: string | null; address: string | null; member_count: number }
 interface Member { id: string; last_name: string; first_names: string; relationship: string | null; is_head: boolean }
@@ -126,6 +127,8 @@ export function CitizenSheet({ open, onOpenChange, citizenId }: Props) {
                 <Row label="Profession" value={citizen.profession ?? "—"} />
                 <Row label="Scolarité" value={citizen.education ?? "—"} />
                 <Row label="Téléphone" value={citizen.phone ?? "—"} />
+                <Row label="Nom du père" value={citizen.father_name ?? "—"} />
+                <Row label="Nom de la mère" value={citizen.mother_name ?? "—"} />
                 <Row label="Enregistré le" value={new Date(citizen.created_at).toLocaleDateString("fr-FR")} />
                 {citizen.notes && <Row label="Notes" value={citizen.notes} />}
               </TabsContent>

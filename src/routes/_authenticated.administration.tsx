@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/administration")({
 });
 
 interface Household { id: string; household_number: string; head_full_name: string; fokontany: string | null; member_count: number; address: string | null }
-interface Citizen { id: string; last_name: string; first_names: string; sex: "M" | "F"; cin: string | null; phone: string | null; profession: string | null; household_id: string | null }
+interface Citizen { id: string; last_name: string; first_names: string; sex: "M" | "F"; cin: string | null; phone: string | null; profession: string | null; household_id: string | null; father_name: string | null; mother_name: string | null }
 interface DocRow { id: string; doc_number: string; doc_type: keyof typeof DOC_TYPES; issued_at: string; status: string; verify_code: string; citizen_snapshot: { last_name: string; first_names: string } }
 
 function AdminPage() {
@@ -158,18 +158,20 @@ function AdminPage() {
           <TabsContent value="citoyens" className="mt-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <Table>
-                <TableHeader><TableRow><TableHead>Nom & prénoms</TableHead><TableHead>Sexe</TableHead><TableHead>CIN</TableHead><TableHead>Profession</TableHead><TableHead>Téléphone</TableHead></TableRow></TableHeader>
+                <TableHeader><TableRow><TableHead>Nom & prénoms</TableHead><TableHead>Sexe</TableHead><TableHead>CIN</TableHead><TableHead>Père</TableHead><TableHead>Mère</TableHead><TableHead>Profession</TableHead><TableHead>Téléphone</TableHead></TableRow></TableHeader>
                 <TableBody>
-                  {citizens.filter((c) => matches(c.last_name) || matches(c.first_names) || matches(c.cin)).map((c) => (
+                  {citizens.filter((c) => matches(c.last_name) || matches(c.first_names) || matches(c.cin) || matches(c.father_name) || matches(c.mother_name)).map((c) => (
                     <TableRow key={c.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openCitizen(c.id)}>
                       <TableCell className="font-medium">{c.last_name} {c.first_names}</TableCell>
                       <TableCell>{SEX_LABEL[c.sex]}</TableCell>
                       <TableCell className="font-mono text-xs">{c.cin ?? "—"}</TableCell>
+                      <TableCell className="text-muted-foreground">{c.father_name ?? "—"}</TableCell>
+                      <TableCell className="text-muted-foreground">{c.mother_name ?? "—"}</TableCell>
                       <TableCell>{c.profession ?? "—"}</TableCell>
                       <TableCell>{c.phone ?? "—"}</TableCell>
                     </TableRow>
                   ))}
-                  {citizens.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-12">Aucun citoyen enregistré.</TableCell></TableRow>}
+                  {citizens.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-12">Aucun citoyen enregistré.</TableCell></TableRow>}
                 </TableBody>
               </Table>
             </div>
