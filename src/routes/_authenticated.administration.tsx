@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, FileCheck2, Download, MapPin } from "lucide-react";
+import { Plus, Search, FileCheck2, Download, MapPin, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HouseholdSheet } from "@/components/HouseholdSheet";
 import { CitizenSheet } from "@/components/CitizenSheet";
@@ -44,9 +44,7 @@ function AdminPage() {
   const [activeLandId, setActiveLandId] = useState<string | null>(null);
 
   const openCitizen = (id: string) => { setActiveCitizenId(id); setSheetC(true); };
-
   const openHousehold = (id: string | null) => { setActiveHouseholdId(id); setDlgH(true); };
-
   const openLand = (id: string | null) => { setActiveLandId(id); setDlgL(true); };
 
   const reload = async () => {
@@ -71,6 +69,24 @@ function AdminPage() {
     if (!reason) return;
     const { error } = await supabase.from("documents_issued").update({ status: "cancelled", cancel_reason: reason, cancelled_at: new Date().toISOString() }).eq("id", id);
     if (error) toast.error(error.message); else { toast.success("Acte annulé"); reload(); }
+  };
+
+  const deleteLand = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const linked = households.filter((h) => (h as unknown as { land_id?: string }).land_id === id).length;
+    if (linked > 0) { toast.error(`Ce terrain a ${linked} foyer(s) rattaché(s). Détachez-les d'abord.`); return; }
+    if (!confirm("Supprimer ce terrain définitivement ?")) return;
+    const { error } = await supabase.from("lands" as never).delete().eq("id", id);
+    if (error) toast.error(error.message); else { toast.success("Terrain supprimé"); reload(); }
+  };
+
+  const deleteHousehold = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const hasCitizens = citizens.some((c) => c.household_id === id);
+    if (hasCitizens) { toast.error("Ce foyer a des membres. Supprimez-les d'abord."); return; }
+    if (!confirm("Supprimer ce foyer définitivement ?")) return;
+    const { error } = await supabase.from("households").delete().eq("id", id);
+    if (error) toast.error(error.message); else { toast.success("Foyer supprimé"); reload(); }
   };
 
   return (
@@ -110,10 +126,22 @@ function AdminPage() {
             </div>
           </div>
 
+          {/* ── TERRAINS ── */}
           <TabsContent value="terrains" className="mt-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <Table>
-                <TableHeader><TableRow><TableHead>Code</TableHead><TableHead>Nom</TableHead><TableHead>Fokontany</TableHead><TableHead className="text-right">Superficie (m²)</TableHead><TableHead>Statut</TableHead><TableHead className="text-right">Foyers</TableHead><TableHead>GPS</TableHead></TableRow></TableHeader>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Fokontany</TableHead>
+                    <TableHead className="text-right">Superficie (m²)</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead className="text-right">Foyers</TableHead>
+                    <TableHead>GPS</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
                 <TableBody>
                   {lands.filter((l) => matches(l.code) || matches(l.name) || matches(l.fokontany)).map((l) => {
                     const fc = households.filter((h) => (h as unknown as { land_id?: string }).land_id === l.id).length;
@@ -125,20 +153,39 @@ function AdminPage() {
                         <TableCell className="text-right font-mono">{l.total_area_m2 ?? "—"}</TableCell>
                         <TableCell>{l.legal_status ? <Badge variant="secondary">{l.legal_status}</Badge> : "—"}</TableCell>
                         <TableCell className="text-right"><Badge variant="secondary">{fc}</Badge></TableCell>
-                        <TableCell className="text-muted-foreground text-xs">{l.lat != null && l.lng != null ? <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" />{l.lat.toFixed(4)}, {l.lng.toFixed(4)}</span> : "—"}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs">
+                          {l.lat != null && l.lng != null
+                            ? <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" />{l.lat.toFixed(4)}, {l.lng.toFixed(4)}</span>
+                            : "—"}
+                        </TableCell>
+                        <TableCell onClick={(e) => deleteLand(l.id, e)}>
+                          <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
-                  {lands.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-12">Aucun terrain. Ajoutez le premier.</TableCell></TableRow>}
+                  {lands.length === 0 && <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-12">Aucun terrain. Ajoutez le premier.</TableCell></TableRow>}
                 </TableBody>
               </Table>
             </div>
           </TabsContent>
 
+          {/* ── FOYERS ── */}
           <TabsContent value="foyers" className="mt-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <Table>
-                <TableHeader><TableRow><TableHead>N°</TableHead><TableHead>Chef</TableHead><TableHead>Fokontany</TableHead><TableHead>Adresse</TableHead><TableHead className="text-right">Membres</TableHead></TableRow></TableHeader>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>N°</TableHead>
+                    <TableHead>Chef</TableHead>
+                    <TableHead>Fokontany</TableHead>
+                    <TableHead>Adresse</TableHead>
+                    <TableHead className="text-right">Membres</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
                 <TableBody>
                   {households.filter((h) => matches(h.household_number) || matches(h.head_full_name)).map((h) => (
                     <TableRow key={h.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openHousehold(h.id)}>
@@ -147,18 +194,36 @@ function AdminPage() {
                       <TableCell>{h.fokontany ?? "—"}</TableCell>
                       <TableCell className="text-muted-foreground">{h.address ?? "—"}</TableCell>
                       <TableCell className="text-right"><Badge variant="secondary">{h.member_count}</Badge></TableCell>
+                      <TableCell onClick={(e) => deleteHousehold(h.id, e)}>
+                        <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
-                  {households.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-12">Aucun foyer. Ajoutez le premier.</TableCell></TableRow>}
+                  {households.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-12">Aucun foyer. Ajoutez le premier.</TableCell></TableRow>}
                 </TableBody>
               </Table>
             </div>
           </TabsContent>
 
+          {/* ── CITOYENS ── */}
           <TabsContent value="citoyens" className="mt-4">
+            <p className="text-xs text-muted-foreground mb-3">
+              💡 Pour ajouter un citoyen <strong>dans un foyer existant</strong>, ouvrez le foyer (onglet Foyers) et utilisez la section « Membres ». Ce formulaire est pour les citoyens sans foyer ou pour une création rapide.
+            </p>
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <Table>
-                <TableHeader><TableRow><TableHead>Nom & prénoms</TableHead><TableHead>Sexe</TableHead><TableHead>CIN</TableHead><TableHead>Profession</TableHead><TableHead>Téléphone</TableHead></TableRow></TableHeader>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom & prénoms</TableHead>
+                    <TableHead>Sexe</TableHead>
+                    <TableHead>CIN</TableHead>
+                    <TableHead>Profession</TableHead>
+                    <TableHead>Téléphone</TableHead>
+                    <TableHead>Foyer</TableHead>
+                  </TableRow>
+                </TableHeader>
                 <TableBody>
                   {citizens.filter((c) => matches(c.last_name) || matches(c.first_names) || matches(c.cin)).map((c) => (
                     <TableRow key={c.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openCitizen(c.id)}>
@@ -167,18 +232,33 @@ function AdminPage() {
                       <TableCell className="font-mono text-xs">{c.cin ?? "—"}</TableCell>
                       <TableCell>{c.profession ?? "—"}</TableCell>
                       <TableCell>{c.phone ?? "—"}</TableCell>
+                      <TableCell>
+                        {c.household_id
+                          ? <Badge variant="secondary" className="text-xs">{households.find((h) => h.id === c.household_id)?.household_number ?? "—"}</Badge>
+                          : <span className="text-xs text-muted-foreground">—</span>}
+                      </TableCell>
                     </TableRow>
                   ))}
-                  {citizens.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-12">Aucun citoyen enregistré.</TableCell></TableRow>}
+                  {citizens.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-12">Aucun citoyen enregistré.</TableCell></TableRow>}
                 </TableBody>
               </Table>
             </div>
           </TabsContent>
 
+          {/* ── ACTES ── */}
           <TabsContent value="actes" className="mt-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <Table>
-                <TableHeader><TableRow><TableHead>N°</TableHead><TableHead>Type</TableHead><TableHead>Bénéficiaire</TableHead><TableHead>Date</TableHead><TableHead>Statut</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>N°</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Bénéficiaire</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
                 <TableBody>
                   {docs.filter((d) => matches(d.doc_number) || matches(d.citizen_snapshot?.last_name)).map((d) => (
                     <TableRow key={d.id}>
