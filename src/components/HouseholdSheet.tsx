@@ -186,7 +186,7 @@ export function HouseholdSheet({ open, onOpenChange, householdId, onSaved, onCre
     if (!open) return;
     if (isNew) {
       setHousehold({ ...emptyHousehold(), household_number: genHouseholdNumber() });
-      setMembers([]); setQrUrl(""); setAdding(false); setEditingMember(null); return;
+      setMembers([]); setQrUrl(""); return;
     }
     (async () => {
       const [{ data: h }, { data: c }] = await Promise.all([

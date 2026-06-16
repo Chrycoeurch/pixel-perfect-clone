@@ -72,12 +72,7 @@ export function CitizenSheet({ open, onOpenChange, citizenId }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>
-            Profil citoyen
-            {household && (
-              <span className="ml-2 text-sm font-normal text-muted-foreground">· Foyer {household.household_number}</span>
-            )}
-          </SheetTitle>
+          <SheetTitle>Profil citoyen</SheetTitle>
         </SheetHeader>
 
         {loading && <p className="text-sm text-muted-foreground mt-6">Chargement…</p>}
