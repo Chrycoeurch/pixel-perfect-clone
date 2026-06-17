@@ -18,10 +18,8 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -33,43 +31,13 @@ function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { full_name: fullName },
-          },
-        });
-        if (error) throw error;
-        toast.success("Compte créé. Vérifiez votre e-mail pour confirmer.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        window.location.href = "/dashboard";
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erreur de connexion");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogle = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
     if (error) {
-      toast.error("Connexion Google échouée : " + error.message);
-      setLoading(false);
+      toast.error("Email ou mot de passe incorrect.");
+    } else {
+      window.location.href = "/dashboard";
     }
-    // Supabase redirige automatiquement vers Google, pas besoin de gérer la suite
   };
 
   return (
@@ -112,42 +80,11 @@ function LoginPage() {
             <div className="font-display font-bold">FANISA Web Pro</div>
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold">
-              {mode === "signin" ? "Connexion" : "Créer un compte"}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {mode === "signin"
-                ? "Accédez à votre espace agent."
-                : "Demandez un accès agent à votre administrateur."}
-            </p>
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogle}
-            disabled={loading}
-          >
-            Continuer avec Google
-          </Button>
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <div className="flex-1 h-px bg-border" /> ou <div className="flex-1 h-px bg-border" />
+            <h1 className="font-display text-2xl font-bold">Connexion</h1>
+            <p className="text-sm text-muted-foreground mt-1">Accédez à votre espace agent.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nom complet</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
-            )}
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
               <Input
@@ -155,6 +92,7 @@ function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="vous@exemple.com"
                 required
                 autoComplete="email"
               />
@@ -168,23 +106,13 @@ function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                autoComplete="current-password"
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "…" : mode === "signin" ? "Se connecter" : "Créer le compte"}
+              {loading ? "Connexion…" : "Se connecter"}
             </Button>
           </form>
-
-          <button
-            type="button"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-center"
-          >
-            {mode === "signin"
-              ? "Pas encore de compte ? S'inscrire"
-              : "Déjà un compte ? Se connecter"}
-          </button>
 
           <Link to="/" className="block text-center text-xs text-muted-foreground hover:text-foreground">
             ← Retour à l'accueil
